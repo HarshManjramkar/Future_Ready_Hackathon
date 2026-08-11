@@ -1,0 +1,11 @@
+{
+  "name": "eduflow-future-ready-hackathon",
+  "version": "1.0.0",
+  "description": "EduFlow: The Zero-Click Air Traffic Controller for Schools",
+  "scripts": {
+    "dev:backend": "cd backend && ./venv/bin/uvicorn app.main:app --reload --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": ["hackathon", "school-automation", "or-tools", "gemini-vision", "smart-kiosk"]
+}
