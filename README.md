@@ -19,7 +19,7 @@ Schools do not just suffer from manual data entry—they suffer from **unpredict
 ## 📁 Modular Directory Structure
 
 ```text
-Team Ragnarok_FutureReadyOps/
+Future_Ready_Hackathon/
 ├── backend/                  # Python FastAPI Backend & Optimization Engine
 │   ├── app/
 │   │   ├── main.py           # REST API routes & live state stream
@@ -106,8 +106,8 @@ Make sure you have the following installed on your machine:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/Team-Ragnarok_FutureReadyOps.git
-cd Team-Ragnarok_FutureReadyOps
+git clone https://github.com/your-username/EduFlow-OS.git
+cd EduFlow-OS
 ```
 
 ---
