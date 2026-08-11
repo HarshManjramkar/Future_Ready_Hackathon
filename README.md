@@ -106,8 +106,8 @@ Make sure you have the following installed on your machine:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/EduFlow-OS.git
-cd EduFlow-OS
+git clone https://github.com/HarshManjramkar/Future_Ready_Hackathon.git
+cd Future_Ready_Hackathon
 ```
 
 ---
