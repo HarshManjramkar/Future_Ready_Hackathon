@@ -269,10 +269,30 @@ def register_attendance(scan: AttendanceScanRequest):
             "green_flash": False
         }
 
-    # Find student
+    # Clean/normalize incoming QR code payload
+    raw_qr = scan.qr_code.strip()
+    clean_id = raw_qr
+
+    if raw_qr.startswith("{") and "id" in raw_qr:
+        try:
+            import json
+            data = json.loads(raw_qr)
+            clean_id = data.get("id", raw_qr)
+        except Exception:
+            pass
+
+    if "STU-" in clean_id:
+        clean_id = clean_id.replace("STU-", "")
+
+    # Find student in attendance logs
     matched_student = None
     for student in ATTENDANCE_LOGS:
-        if student["qr_code"] == scan.qr_code or student["id"] == scan.qr_code:
+        s_id = str(student.get("id", ""))
+        s_qr = str(student.get("qr_code", ""))
+        
+        if (s_qr == raw_qr or s_id == raw_qr or 
+            s_qr == clean_id or s_id == clean_id or 
+            f"STU-{s_id}" in raw_qr or f"STU-{s_qr}" in raw_qr):
             student["attendance_status"] = "PRESENT"
             student["check_in_time"] = time.strftime("%I:%M %p")
             matched_student = student
@@ -286,22 +306,10 @@ def register_attendance(scan: AttendanceScanRequest):
             "green_flash": True
         }
     else:
-        # Create a new student on the fly for demo flexibility
-        new_student = {
-            "id": scan.qr_code,
-            "name": f"Student ({scan.qr_code})",
-            "grade": "Grade 10-A",
-            "roll_no": "1099",
-            "qr_code": scan.qr_code,
-            "attendance_status": "PRESENT",
-            "check_in_time": time.strftime("%I:%M %p")
-        }
-        ATTENDANCE_LOGS.append(new_student)
         return {
-            "status": "SUCCESS",
-            "message": f"Verified! New ID ({scan.qr_code}) marked PRESENT.",
-            "student": new_student,
-            "green_flash": True
+            "status": "REJECTED",
+            "message": f"Security Alert: ID QR Code (#{scan.qr_code}) is unregistered or invalid!",
+            "green_flash": False
         }
 
 @app.get("/api/students")
