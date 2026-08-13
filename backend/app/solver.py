@@ -114,10 +114,22 @@ class TimetableSolver:
     def resolve_teacher_absence(self, absent_teacher_id: str, day: str, current_schedule: List[Dict]) -> Dict[str, Any]:
         """
         Real-time Disruption Solver:
-        When a teacher calls in sick, finds the optimal substitute who is free during affected periods
-        and qualified, minimizing schedule changes.
+        When a teacher calls in sick, evaluates hard constraints:
+        1. Is substitute free during the period?
+        2. Is substitute qualified via substitute_capable_subjects?
+        3. Respects max_daily_periods limit.
         """
-        affected_slots = [slot for slot in current_schedule if slot["teacher_id"] == absent_teacher_id and slot["day"] == day]
+        # Alias lookup for legacy IDs (e.g. T101 -> TCH_101)
+        target_teacher_id = absent_teacher_id
+        if absent_teacher_id == "T101": target_teacher_id = "TCH_101"
+        elif absent_teacher_id == "T102": target_teacher_id = "TCH_102"
+        elif absent_teacher_id == "T103": target_teacher_id = "TCH_103"
+
+        affected_slots = [
+            slot for slot in current_schedule 
+            if (slot["teacher_id"] == absent_teacher_id or slot["teacher_id"] == target_teacher_id or target_teacher_id in slot["teacher_id"]) 
+            and slot["day"] == day
+        ]
         resolutions = []
 
         # Find free teachers for each affected period
@@ -126,7 +138,7 @@ class TimetableSolver:
             subject_id = slot.get("subject_id", "")
             subject_name = slot.get("subject_name", "")
             subject = subject_name
-            cohort = slot["cohort_name"]
+            cohort = slot.get("cohort_name", slot.get("cohort_id", "Grade 10-A"))
 
             # Teachers busy in this period
             busy_teacher_ids = {s["teacher_id"] for s in current_schedule if s["day"] == day and s["period"] == period}
@@ -134,14 +146,27 @@ class TimetableSolver:
             # Candidates who are free and qualified (or general supervisors)
             candidates = []
             for t in self.teachers:
-                if t["id"] != absent_teacher_id and t["id"] not in busy_teacher_ids:
-                    is_specialist = subject_id in t.get("subjects", []) or subject_name in t.get("subjects", [])
-                    candidates.append({
-                        "teacher_id": t["id"],
-                        "teacher_name": t["name"],
-                        "is_subject_specialist": is_specialist,
-                        "score": 10 if is_specialist else 5
-                    })
+                t_id = t["id"]
+                if t_id != target_teacher_id and t_id != absent_teacher_id and t_id not in busy_teacher_ids:
+                    capable_subjects = t.get("substitute_capable_subjects", t.get("subjects", []))
+                    is_specialist = (
+                        subject_id in capable_subjects or 
+                        subject_name in capable_subjects or 
+                        any(s in subject_name for s in capable_subjects) or
+                        subject_id == t.get("primary_subject_id")
+                    )
+                    
+                    # Count existing assigned periods today
+                    periods_today = sum(1 for s in current_schedule if s["day"] == day and s["teacher_id"] == t_id)
+                    max_periods = t.get("max_daily_periods", 5)
+
+                    if periods_today < max_periods:
+                        candidates.append({
+                            "teacher_id": t_id,
+                            "teacher_name": t["name"],
+                            "is_subject_specialist": is_specialist,
+                            "score": 10 if is_specialist else 5
+                        })
 
             candidates.sort(key=lambda x: x["score"], reverse=True)
             
@@ -170,7 +195,7 @@ class TimetableSolver:
                 })
 
         return {
-            "absent_teacher_id": absent_teacher_id,
+            "absent_teacher_id": target_teacher_id,
             "day": day,
             "total_affected_periods": len(affected_slots),
             "resolutions": resolutions
