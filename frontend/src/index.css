@@ -87,13 +87,21 @@
   }
 }
 
-/* ─── THEME ADAPTIVE CLASSES ─── */
-.glass-panel, .glass-card, .neumorphic-panel {
+/* ─── DYNAMIC HOVER PHYSICS & MICRO-INTERACTIONS ─── */
+.glass-panel, .glass-card, .neumorphic-panel, .bento-cell, .bento-cell-hero, .app-subcard {
   background: var(--panel-bg) !important;
   box-shadow: var(--neumorphic-outset) !important;
   border: 1px solid var(--panel-border) !important;
   border-radius: 20px;
-  transition: all 0.25s ease-in-out;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease !important;
+}
+
+.glass-panel:hover, .bento-cell:hover, .bento-cell-hero:hover {
+  transform: translateY(-3px) scale(1.008) !important;
+  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.2), 0 4px 12px -2px rgba(0, 0, 0, 0.12) !important;
+  border-color: var(--accent-color) !important;
 }
 
 .app-subcard {
@@ -102,42 +110,35 @@
   color: var(--text-primary) !important;
 }
 
+.app-subcard:hover {
+  transform: translateY(-2px) scale(1.01) !important;
+  border-color: var(--accent-color) !important;
+}
+
 .app-card-solid {
   background-color: var(--card-bg-solid) !important;
   border: 1px solid var(--panel-border) !important;
   color: var(--text-primary) !important;
 }
 
-.neumorphic-panel-hover:hover {
-  transform: translateY(-2px);
-}
-
-/* ─── BENTO GRID SYSTEM ─── */
 .bento-grid {
   display: grid;
   gap: 1.25rem;
 }
 
-.bento-cell {
-  background: var(--panel-bg);
-  box-shadow: var(--neumorphic-outset);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  overflow: hidden;
+/* Tactile Bouncy Buttons */
+button, .btn-interactive {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              background-color 0.15s ease, 
+              box-shadow 0.15s ease !important;
 }
 
-.bento-cell:hover {
-  transform: translateY(-1px);
+button:hover {
+  transform: translateY(-1.5px);
 }
 
-.bento-cell-hero {
-  background: var(--panel-bg);
-  box-shadow: var(--neumorphic-outset);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
+button:active {
+  transform: translateY(1px) scale(0.96) !important;
 }
 
 /* ─── 3D INTRO GATE ANIMATIONS ─── */
