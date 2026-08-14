@@ -43,21 +43,6 @@ export default function Header({
             </kbd>
           </button>
 
-          {/* Profile Pill */}
-          <div className="flex items-center gap-2.5 pl-4" style={{ borderLeft: '1px solid var(--panel-border)' }}>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-xs shadow-md"
-              style={{ background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)' }}>
-              AD
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-[11px] font-semibold leading-none" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-body)' }}>
-                Victory Admin
-              </p>
-              <p className="text-[9px] mt-0.5" style={{ color: 'var(--text-secondary)', opacity: 0.6 }}>
-                Principal
-              </p>
-            </div>
-          </div>
         </div>
       </header>
 
