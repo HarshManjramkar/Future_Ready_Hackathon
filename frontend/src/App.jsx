@@ -89,7 +89,7 @@ export default function App() {
       const res = await fetch('/api/timetable/disruption', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teacher_id: 'T101', day: 'Monday' })
+        body: JSON.stringify({ teacher_id: 'TCH_101', day: 'Monday' })
       });
       const data = await res.json();
       if (data.status === 'SUCCESS') {
