@@ -81,9 +81,9 @@ class DocumentParser:
             except Exception as e:
                 print(f"Gemini Client init warning: {e}")
 
-    def parse_image_bytes(self, image_bytes: bytes, filename: str = "form.jpg") -> Dict[str, Any]:
-        """Parses image bytes using Gemini 1.5 Pro / Flash or returns simulated high-accuracy extractions."""
-        if self.client:
+    def parse_image_bytes(self, image_bytes: bytes, filename: str = "form.jpg", sample_type: str = None) -> Dict[str, Any]:
+        """Parses image bytes using Gemini 1.5 Vision or returns simulated high-accuracy extractions."""
+        if self.client and not sample_type:
             try:
                 image = Image.open(io.BytesIO(image_bytes))
                 response = self.client.models.generate_content(
@@ -91,24 +91,23 @@ class DocumentParser:
                     contents=[image, FORM_SCHEMA_PROMPT]
                 )
                 text = response.text.strip()
-                # Clean markdown tags if present
                 if text.startswith("```json"):
                     text = text[7:]
                 if text.endswith("```"):
                     text = text[:-3]
                 text = text.strip()
-                
-                parsed_json = json.loads(text)
-                return parsed_json
+                return json.loads(text)
             except Exception as e:
                 print(f"Gemini API execution error, falling back: {e}")
 
         # Fallback Simulator for Demo mode
-        filename_lower = filename.lower()
-        is_messy_demo = "messy" in filename_lower or "review" in filename_lower
-        is_leave_demo = "leave" in filename_lower or "teacher" in filename_lower or "3_" in filename_lower
-        is_medical_demo = "medical" in filename_lower
-        is_field_trip_demo = "field trip" in filename_lower or "fieldtrip" in filename_lower
+        filename_lower = (filename or "").lower()
+        st_lower = (sample_type or "").lower()
+        
+        is_messy_demo = st_lower == "messy" or "messy" in filename_lower or "2_" in filename_lower or "smudged" in filename_lower
+        is_leave_demo = st_lower == "leave" or "leave" in filename_lower or "teacher" in filename_lower or "3_" in filename_lower
+        is_medical_demo = st_lower == "medical" or "medical" in filename_lower
+        is_field_trip_demo = st_lower == "field_trip" or "field trip" in filename_lower or "fieldtrip" in filename_lower
         
         if is_leave_demo:
             return {

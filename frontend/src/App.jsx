@@ -498,7 +498,7 @@ export default function App() {
 
       {/* 60-Second Interactive Guided Tour Overlay */}
       {tourStep !== null && (
-        <div className="fixed bottom-6 left-6 z-50 glass-panel p-5 rounded-2xl w-80 border-2 border-emerald-500 bg-[var(--panel-bg)] shadow-2xl animate-in fade-in slide-in-from-bottom duration-300">
+        <div style={{ position: 'fixed', bottom: '24px', left: '24px', zIndex: 99999 }} className="glass-panel p-5 rounded-2xl w-80 border-2 border-emerald-500 bg-[var(--panel-bg)] shadow-2xl animate-in fade-in slide-in-from-bottom duration-300">
           {tourStep === 0 ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2">

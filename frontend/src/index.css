@@ -140,6 +140,42 @@
   overflow: hidden;
 }
 
+/* ─── 3D INTRO GATE ANIMATIONS ─── */
+.gate-viewport .gate-door-left {
+  transition: transform 1.6s cubic-bezier(0.77, 0, 0.175, 1);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.gate-viewport .gate-door-right {
+  transition: transform 1.6s cubic-bezier(0.77, 0, 0.175, 1);
+  transform-origin: right center;
+  will-change: transform;
+}
+
+.gate-viewport.gate-open .gate-door-left {
+  transform: translateX(-100%);
+}
+
+.gate-viewport.gate-open .gate-door-right {
+  transform: translateX(100%);
+}
+
+@keyframes introWipeUp {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-100%); }
+}
+
+@keyframes introFadeUp {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progressBar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
 .bento-cell-hero::before {
   content: '';
   position: absolute;

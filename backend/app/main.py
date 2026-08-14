@@ -165,12 +165,13 @@ def simulate_mass_absence():
     }
 
 
+@app.post("/api/document/process")
 @app.post("/api/document/parse")
-async def parse_document(file: UploadFile = File(...)):
+async def parse_document(file: UploadFile = File(...), sample_type: Optional[str] = Form(None)):
     """Magic Dropzone: Uploads a paper form and uses Gemini Vision to extract structured JSON."""
     try:
         contents = await file.read()
-        parsed_result = doc_parser.parse_image_bytes(contents, filename=file.filename)
+        parsed_result = doc_parser.parse_image_bytes(contents, filename=file.filename, sample_type=sample_type)
         
         # If requires human review, add to inbox
         if parsed_result.get("requires_human_review", False):

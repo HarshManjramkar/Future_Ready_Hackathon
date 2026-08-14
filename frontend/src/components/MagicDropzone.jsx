@@ -58,7 +58,8 @@ export default function MagicDropzone() {
       setParseProgress('Structuring output JSON schema...');
       setTimeout(() => {
         setIsParsing(false);
-        setExtractedData(data.parsed_data);
+        const resultData = data.parsed_data || data;
+        setExtractedData(resultData);
         if (data.auto_timetable_solved) {
           setTimetableResult(data.resolution);
         }
