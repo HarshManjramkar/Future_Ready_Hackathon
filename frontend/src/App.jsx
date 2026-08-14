@@ -172,11 +172,11 @@ export default function App() {
       action: () => executeCommand('theme light')
     },
     {
-      id: 'absent-t101',
-      keywords: ['absent t101', 'leave ramesh', 'verma', 'sick'],
-      title: '⚡ Mark Dr. Ramesh Verma Absent',
-      subtitle: 'Triggers CP-SAT solver for Periods 1 & 3',
-      action: () => executeCommand('absent T101')
+      id: 'absent-tch101',
+      keywords: ['absent tch_101', 'leave deepti', 'bisen', 'sick'],
+      title: '⚡ Mark Mrs. Deepti Bisen Absent',
+      subtitle: 'Triggers CP-SAT solver for Periods 1 & 8',
+      action: () => executeCommand('absent TCH_101')
     },
     {
       id: 'absent-t102',
@@ -424,7 +424,7 @@ export default function App() {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Ask EduFlow or run a command (e.g. 'absent T101', 'theme emerald', 'tour')..."
+                  placeholder="Ask EduFlow or run a command (e.g. 'absent TCH_101', 'theme light', 'tour')..."
                   value={commandInput}
                   onChange={(e) => setCommandInput(e.target.value)}
                   onKeyDown={(e) => {

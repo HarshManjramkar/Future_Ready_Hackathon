@@ -302,10 +302,10 @@ export default function DashboardOverview({
                 <span className="editorial-label" style={{ color: 'var(--text-secondary)', opacity: 0.4 }}>· Substitute Loop</span>
               </div>
               <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-body)' }}>
-                Dr. Ramesh Verma Leave Notice Detected
+                Mrs. Deepti Bisen Leave Notice Detected
               </p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)', opacity: 0.6, fontFamily: 'var(--font-body)' }}>
-                Substitute allocated for Monday Periods 1 & 3 with zero scheduling overlaps.
+                Substitute allocated for Monday Periods 1 & 8 with zero scheduling overlaps.
               </p>
             </div>
           </div>

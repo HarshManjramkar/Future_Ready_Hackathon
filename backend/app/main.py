@@ -130,14 +130,14 @@ def reset_demo_state():
 
 @app.post("/api/demo/mass-absence")
 def simulate_mass_absence():
-    """Simulates mass teacher absence (T101, T102, T103) on Monday and resolves coverage."""
-    global CURRENT_SCHEDULE
-    absent_teachers = ["T101", "T102", "T103"]
+    """Simulates mass teacher absence (TCH_101, TCH_102, TCH_103) on Monday and resolves coverage."""
+    absent_teachers = ["TCH_101", "TCH_102", "TCH_103"]
     day = "Monday"
     
     all_resolutions = []
     
     # Regenerate schedule to clean state first to avoid conflict accumulation
+    global CURRENT_SCHEDULE
     CURRENT_SCHEDULE = solver_engine.generate_full_schedule()
     
     for t_id in absent_teachers:

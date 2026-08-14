@@ -1,4 +1,4 @@
-# ⚡ EduFlow OS: Autonomous Campus Operations Engine
+# ⚡ EduFlow OS: Autonomous School Operations Engine
 
 > **Future Ready Hackathon 2026 Submission — Team Ragnarok (VIT Pune)**  
 > *Transforming physical paperwork, static spreadsheets, and manual attendance into a real-time, self-orchestrating school engine.*
@@ -12,7 +12,7 @@ Schools do not just suffer from manual data entry—they suffer from **unpredict
 - Physical admission forms and medical slips pile up unread in paper trays for weeks.
 - Attendance systems suffer from proxy fraud ("buddy-punching"), where students swap ID cards.
 
-**EduFlow OS** operates as an **Autonomous Campus Operating System**. Powered by Google Gemini 1.5 Vision VLMs, Google OR-Tools CP-SAT Solvers, and Edge Computer Vision, EduFlow replaces fragmented tools with a self-resolving, real-time operating layer.
+**EduFlow OS** operates as an **Autonomous School Operating System**. Powered by Google Gemini 1.5 Vision VLMs, Google OR-Tools CP-SAT Solvers, and Edge Computer Vision, EduFlow replaces fragmented tools with a self-resolving, real-time operating layer.
 
 ---
 
@@ -25,7 +25,7 @@ Future_Ready_Hackathon/
 │   │   ├── main.py           # REST API routes & live state stream
 │   │   ├── solver.py         # Google OR-Tools CP-SAT Timetable Disruption Solver
 │   │   ├── parser.py         # Gemini 1.5 Vision VLM Document Reader
-│   │   └── mock_data.py      # Seed data (5 Canva ID Students, 5 Teachers, 4 Cohorts)
+│   │   └── mock_data.py      # Seed data (CBSE Class 10 roster, 7 Teachers, 7 Subjects)
 │   ├── Procfile              # Render / Railway production deployment
 │   ├── requirements.txt      # Python dependencies
 │   └── venv/                 # Virtual environment (local)
@@ -84,8 +84,8 @@ Future_Ready_Hackathon/
 
 | Layer | Technology Used | Purpose |
 |---|---|---|
-| **Perception Layer** | Google Gemini 1.5 Pro VLM | Zero-shot handwritten document reading |
-| **Edge Vision Layer** | `tracking.js` Haar Cascade CV | Real-time 60 FPS face detection in browser |
+| **Perception Layer** | Google Gemini 1.5 Vision VLM | Zero-shot handwritten document reading |
+| **Edge Vision Layer** | Google MediaPipe AI / Edge CV | Real-time 60 FPS face detection in browser |
 | **Optimization Engine** | Google OR-Tools (CP-SAT) | Combinatorial constraint solver for timetabling |
 | **Backend API** | Python 3.10+, FastAPI, Uvicorn | High-performance asynchronous REST API |
 | **Frontend UI** | React 19, Vite, Tailwind CSS v4 | Bento Grid layout & 3D CSS animations |

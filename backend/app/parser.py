@@ -114,8 +114,8 @@ class DocumentParser:
             return {
                 "document_type": "TEACHER_LEAVE_FORM",
                 "school_name": "VICTORY HIGH SCHOOL",
-                "teacher_name": "Dr. Ramesh Verma",
-                "teacher_id": "T101",
+                "teacher_name": "Mrs. Deepti Bisen",
+                "teacher_id": "TCH_101",
                 "leave_type": "Sick Leave",
                 "date_of_absence": "Monday",
                 "reason": "Severe Viral Fever",

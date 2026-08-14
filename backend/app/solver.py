@@ -127,8 +127,8 @@ class TimetableSolver:
 
         affected_slots = [
             slot for slot in current_schedule 
-            if (slot["teacher_id"] == absent_teacher_id or slot["teacher_id"] == target_teacher_id or target_teacher_id in slot["teacher_id"]) 
-            and slot["day"] == day
+            if (slot.get("teacher_id") == absent_teacher_id or slot.get("teacher_id") == target_teacher_id or target_teacher_id in str(slot.get("teacher_id", ""))) 
+            and slot.get("day", "Monday") == day
         ]
         resolutions = []
 
@@ -136,12 +136,12 @@ class TimetableSolver:
         for slot in affected_slots:
             period = slot["period"]
             subject_id = slot.get("subject_id", "")
-            subject_name = slot.get("subject_name", "")
+            subject_name = slot.get("subject_name", slot.get("subject", ""))
             subject = subject_name
-            cohort = slot.get("cohort_name", slot.get("cohort_id", "Grade 10-A"))
+            cohort = slot.get("cohort_name", slot.get("cohort_id", "Grade 10"))
 
             # Teachers busy in this period
-            busy_teacher_ids = {s["teacher_id"] for s in current_schedule if s["day"] == day and s["period"] == period}
+            busy_teacher_ids = {s.get("teacher_id") for s in current_schedule if s.get("day", "Monday") == day and s.get("period") == period}
             
             # Candidates who are free and qualified (or general supervisors)
             candidates = []
@@ -157,7 +157,7 @@ class TimetableSolver:
                     )
                     
                     # Count existing assigned periods today
-                    periods_today = sum(1 for s in current_schedule if s["day"] == day and s["teacher_id"] == t_id)
+                    periods_today = sum(1 for s in current_schedule if s.get("day", "Monday") == day and s.get("teacher_id") == t_id)
                     max_periods = t.get("max_daily_periods", 5)
 
                     if periods_today < max_periods:

@@ -244,12 +244,12 @@ STUDENTS = STUDENTS_DB
 
 # Daily Timetable Grid for Class 10 (8 Periods)
 TIMETABLE_10A = [
-    {"period": 1, "time": "08:00 - 08:45", "subject_id": "SUB_102", "subject": "Mathematics", "teacher_id": "TCH_101", "teacher_name": "Mrs. Deepti Bisen", "room": "Room 301"},
-    {"period": 2, "time": "08:45 - 09:30", "subject_id": "SUB_103", "subject": "Science", "teacher_id": "TCH_102", "teacher_name": "Mr. Rajesh Deshmukh", "room": "Science Lab"},
-    {"period": 3, "time": "09:30 - 10:15", "subject_id": "SUB_101", "subject": "English", "teacher_id": "TCH_103", "teacher_name": "Mrs. Sunita Kulkarni", "room": "Room 301"},
-    {"period": 4, "time": "10:30 - 11:15", "subject_id": "SUB_104", "subject": "Social Science", "teacher_id": "TCH_104", "teacher_name": "Mr. Amit Joshi", "room": "Room 301"},
-    {"period": 5, "time": "11:15 - 12:00", "subject_id": "SUB_105", "subject": "Second Language (Hindi/Marathi)", "teacher_id": "TCH_105", "teacher_name": "Mrs. Rohini Patil", "room": "Room 301"},
-    {"period": 6, "time": "12:30 - 01:15", "subject_id": "SUB_106", "subject": "Information Technology", "teacher_id": "TCH_106", "teacher_name": "Mr. Vikram Shinde", "room": "Comp Lab"},
-    {"period": 7, "time": "01:15 - 02:00", "subject_id": "SUB_107", "subject": "Physical Education", "teacher_id": "TCH_107", "teacher_name": "Coach Ramesh Pawar", "room": "Playground"},
-    {"period": 8, "time": "02:00 - 02:45", "subject_id": "SUB_102", "subject": "Mathematics (Problem Solving)", "teacher_id": "TCH_101", "teacher_name": "Mrs. Deepti Bisen", "room": "Room 301"}
+    {"period": 1, "day": "Monday", "time": "08:00 - 08:45", "subject_id": "SUB_102", "subject": "Mathematics", "teacher_id": "TCH_101", "teacher_name": "Mrs. Deepti Bisen", "room": "Room 301"},
+    {"period": 2, "day": "Monday", "time": "08:45 - 09:30", "subject_id": "SUB_103", "subject": "Science", "teacher_id": "TCH_102", "teacher_name": "Mr. Rajesh Deshmukh", "room": "Science Lab"},
+    {"period": 3, "day": "Monday", "time": "09:30 - 10:15", "subject_id": "SUB_101", "subject": "English", "teacher_id": "TCH_103", "teacher_name": "Mrs. Sunita Kulkarni", "room": "Room 301"},
+    {"period": 4, "day": "Monday", "time": "10:30 - 11:15", "subject_id": "SUB_104", "subject": "Social Science", "teacher_id": "TCH_104", "teacher_name": "Mr. Amit Joshi", "room": "Room 301"},
+    {"period": 5, "day": "Monday", "time": "11:15 - 12:00", "subject_id": "SUB_105", "subject": "Second Language (Hindi/Marathi)", "teacher_id": "TCH_105", "teacher_name": "Mrs. Rohini Patil", "room": "Room 301"},
+    {"period": 6, "day": "Monday", "time": "12:30 - 01:15", "subject_id": "SUB_106", "subject": "Information Technology", "teacher_id": "TCH_106", "teacher_name": "Mr. Vikram Shinde", "room": "Comp Lab"},
+    {"period": 7, "day": "Monday", "time": "01:15 - 02:00", "subject_id": "SUB_107", "subject": "Physical Education", "teacher_id": "TCH_107", "teacher_name": "Coach Ramesh Pawar", "room": "Playground"},
+    {"period": 8, "day": "Monday", "time": "02:00 - 02:45", "subject_id": "SUB_102", "subject": "Mathematics (Problem Solving)", "teacher_id": "TCH_101", "teacher_name": "Mrs. Deepti Bisen", "room": "Room 301"}
 ]
