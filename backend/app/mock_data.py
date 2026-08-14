@@ -107,12 +107,12 @@ CLASSES_DB = [
         "division": "A",
         "room_number": "Room 301",
         "class_teacher_id": "TCH_101",
-        "total_students": 16
+        "total_students": 17
     }
 ]
 
 COHORTS = [
-    {"id": "10-A", "name": "Grade 10", "student_count": 16}
+    {"id": "10-A", "name": "Grade 10", "student_count": 17}
 ]
 
 STUDENTS_DB = [
@@ -236,7 +236,8 @@ STUDENTS_DB = [
     {"student_id": "9912", "id": "9912", "full_name": "Kabir Verma", "name": "Kabir Verma", "class_id": "10-A", "grade": "Grade 10", "roll_no": "9912", "qr_code": "9912", "phone": "+91 98220 11007", "guardian_phone": "+91 98220 11007", "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150", "status": "ABSENT", "attendance_status": "ABSENT", "check_in_time": "--", "academic_risk": "MEDIUM"},
     {"student_id": "9913", "id": "9913", "full_name": "Neha Deshmukh", "name": "Neha Deshmukh", "class_id": "10-A", "grade": "Grade 10", "roll_no": "9913", "qr_code": "9913", "phone": "+91 98220 11008", "guardian_phone": "+91 98220 11008", "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", "status": "PRESENT", "attendance_status": "ABSENT", "check_in_time": "--", "academic_risk": "LOW"},
     {"student_id": "9914", "id": "9914", "full_name": "Pranav Shinde", "name": "Pranav Shinde", "class_id": "10-A", "grade": "Grade 10", "roll_no": "9914", "qr_code": "9914", "phone": "+91 98220 11009", "guardian_phone": "+91 98220 11009", "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", "status": "PRESENT", "attendance_status": "ABSENT", "check_in_time": "--", "academic_risk": "LOW"},
-    {"student_id": "9915", "id": "9915", "full_name": "Riya Bhosale", "name": "Riya Bhosale", "class_id": "10-A", "grade": "Grade 10", "roll_no": "9915", "qr_code": "9915", "phone": "+91 98220 11010", "guardian_phone": "+91 98220 11010", "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", "status": "PRESENT", "attendance_status": "ABSENT", "check_in_time": "--", "academic_risk": "LOW"}
+    {"student_id": "9915", "id": "9915", "full_name": "Riya Bhosale", "name": "Riya Bhosale", "class_id": "10-A", "grade": "Grade 10", "roll_no": "9915", "qr_code": "9915", "phone": "+91 98220 11010", "guardian_phone": "+91 98220 11010", "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", "status": "PRESENT", "attendance_status": "ABSENT", "check_in_time": "--", "academic_risk": "LOW"},
+    {"student_id": "9916", "id": "9916", "full_name": "Shreyas Deshmukh", "name": "Shreyas Deshmukh", "class_id": "10-A", "grade": "Grade 10", "roll_no": "9916", "qr_code": "9916", "phone": "+91 98220 11011", "guardian_phone": "+91 98220 11011", "avatar": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150", "status": "PRESENT", "attendance_status": "ABSENT", "check_in_time": "--", "academic_risk": "LOW"}
 ]
 
 # Alias list for backwards compatibility
