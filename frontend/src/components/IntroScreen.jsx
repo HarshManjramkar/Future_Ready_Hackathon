@@ -297,7 +297,7 @@ export default function IntroScreen({ onComplete }) {
               Autonomous AI School Management & Operations Portal
             </p>
             <p style={{ fontSize: 12, color: '#34d399', fontWeight: 600 }}>
-              Victory High School • Digital Campus
+              Victory High School • Smart Operations
             </p>
           </div>
         )}

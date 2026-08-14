@@ -95,7 +95,7 @@ export default function DashboardOverview({
           School Management System
         </p>
         <h1 className="display-heading text-xl" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
-          Campus Overview
+          School Operations Overview
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)', opacity: 0.6, fontFamily: 'var(--font-body)' }}>
           Monday, August 2026 &nbsp;·&nbsp; Victory High School
@@ -359,7 +359,7 @@ export default function DashboardOverview({
               Interactive Guided Tour
             </h3>
             <p className="text-xs mt-1.5" style={{ color: 'var(--text-secondary)', opacity: 0.5, fontFamily: 'var(--font-body)' }}>
-              Step-by-step walkthrough of all AI-powered campus pipelines.
+              Step-by-step walkthrough of all AI-powered school operations.
             </p>
           </div>
           <button onClick={onTriggerTour}

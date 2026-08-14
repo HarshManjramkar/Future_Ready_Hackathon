@@ -359,7 +359,7 @@ export default function App() {
   const getHeaderInfo = () => {
     switch (activeTab) {
       case 'dashboard':
-        return { title: 'Smart Campus Command Center', subtitle: 'Real-time overview of school operations, timetables, and documents' };
+        return { title: 'School Operations Center', subtitle: 'Real-time overview of school operations, timetables, and documents' };
       case 'dropzone':
         return { title: 'Magic Dropzone Reader', subtitle: 'Zero-shot VLM paper form parsing & data structuring' };
       case 'timetable':
