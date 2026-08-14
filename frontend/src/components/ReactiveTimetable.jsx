@@ -251,11 +251,7 @@ export default function ReactiveTimetable({ initialSchedule }) {
               <tr key={p} className="hover:bg-slate-500/10 transition">
                 <td className="py-4 px-4 font-mono font-bold text-sky-500">P{p}</td>
                 {days.map(day => {
-                  const slot = schedule.find(s => 
-                    s.day === day && 
-                    s.period === p && 
-                    (s.cohort_id === '10-A' || s.cohort_id === 'C10A' || s.cohort_name === 'Grade 10-A')
-                  );
+                  const slot = schedule.find(s => s.day === day && s.period === p);
                   if (!slot) return <td key={day} className="py-4 px-4" style={{ color: 'var(--text-muted)' }}>Free</td>;
 
                   return (
