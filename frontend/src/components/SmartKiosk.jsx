@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  QrCode, 
   UserCheck, 
   ShieldAlert, 
   CheckCircle2, 
@@ -13,9 +12,8 @@ import {
   X,
   FileImage,
   Cpu,
-  Search,
-  KeyRound,
-  ShieldCheck
+  ShieldCheck,
+  UserPlus
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -29,7 +27,6 @@ export default function SmartKiosk() {
   const [recentLogs, setRecentLogs] = useState([]);
   const [viewCardModal, setViewCardModal] = useState(null);
   const [engineType, setEngineType] = useState('Google MediaPipe AI');
-  const [customQrInput, setCustomQrInput] = useState('');
   
   const videoRef = useRef(null);
   const cameraInstanceRef = useRef(null);
@@ -163,13 +160,13 @@ export default function SmartKiosk() {
     setFaceRect(null);
   };
 
-  const handleScanID = async (qrCode) => {
+  const handleVerifyAttendance = async (studentId) => {
     try {
       const res = await fetch('/api/kiosk/attendance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          qr_code: qrCode,
+          qr_code: studentId,
           face_detected: faceDetected
         })
       });
@@ -199,7 +196,6 @@ export default function SmartKiosk() {
   const getBoxStyle = () => {
     if (!faceRect) return { display: 'none' };
 
-    // Mirrored coordinate calculation: video is CSS flipped scaleX(-1)
     const leftPct = (1 - faceRect.x - faceRect.width) * 100;
     const topPct = faceRect.y * 100;
     const widthPct = faceRect.width * 100;
@@ -229,15 +225,15 @@ export default function SmartKiosk() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded border border-emerald-500/30">
-                Dual-Modal Security Verification
+                Google AI Face Verification Kiosk
               </span>
               <span className="text-xs text-slate-400">Victory High School • Smart Kiosk</span>
             </div>
             <h2 className="text-xl font-extrabold text-white mt-1 flex items-center gap-2">
-              <span>Smart Kiosk: Non-Intrusive Attendance Scanner</span>
+              <span>Smart Kiosk: Real-Time Face Recognition Attendance</span>
             </h2>
             <p className="text-xs text-slate-300 mt-1 max-w-2xl">
-              Attendance is granted ONLY when <strong>Both Security Conditions</strong> pass: (1) QR Payload matches database AND (2) Live human face is tracked by Google AI.
+              Attendance is verified in real-time using <strong>Google MediaPipe AI Face Detection</strong>. Each student ID contains a unique encrypted signature matched internally to the school database.
             </p>
           </div>
 
@@ -266,20 +262,20 @@ export default function SmartKiosk() {
         <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-emerald-300 uppercase tracking-wider">
             <Sparkles className="w-4 h-4 text-emerald-400" />
-            <span>🧪 Judge Quick Testing Guide (Dual-Modal Security Pipeline)</span>
+            <span>🧪 Judge Quick Testing Guide (Face Recognition Kiosk)</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-300">
             <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
-              <span className="font-bold text-emerald-400 block">1. Pass Verification Test</span>
-              <p className="text-[11px] text-slate-400">Click <strong>Start Kiosk Camera</strong> (face tracked in camera). Click <strong>Tap ID</strong> for Arjun &rarr; Database matches QR ID <code>9901</code> + Face = <strong>PRESENT</strong>!</p>
+              <span className="font-bold text-emerald-400 block">1. Verify Face Attendance</span>
+              <p className="text-[11px] text-slate-400">Click <strong>Start Kiosk Camera</strong> and stay in camera view (green box tracks face). Click <strong>Verify Attendance</strong> &rarr; Marked <strong>PRESENT</strong>!</p>
             </div>
             <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
-              <span className="font-bold text-rose-400 block">2. Test Fraud QR Rejection</span>
-              <p className="text-[11px] text-slate-400">Type a fake QR string (e.g. <code>FRAUD_999</code>) in the test box on the right &rarr; System checks database & rejects invalid QR!</p>
+              <span className="font-bold text-rose-400 block">2. Test Anti-Proxy Security</span>
+              <p className="text-[11px] text-slate-400">Cover your camera lens with your hand (status turns to <em>No Face Detected</em>). Click <strong>Verify Attendance</strong> &rarr; System blocks proxy attendance!</p>
             </div>
             <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
-              <span className="font-bold text-amber-400 block">3. Test Proxy Attendance Block</span>
-              <p className="text-[11px] text-slate-400">Cover your camera lens (no face detected). Click <strong>Tap ID</strong> &rarr; Even with valid QR, system blocks attendance!</p>
+              <span className="font-bold text-blue-400 block">3. Inspect Student ID Cards</span>
+              <p className="text-[11px] text-slate-400">Click the <strong>Card</strong> button next to any student to view or download their Canva Student ID card PNG graphics with embedded database signatures.</p>
             </div>
           </div>
         </div>
@@ -322,7 +318,7 @@ export default function SmartKiosk() {
                 )}
               </div>
 
-              {/* Dual Security Pipeline Status Bar */}
+              {/* Computer Vision Engine Status Bar */}
               <div className="mt-4 p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs text-slate-300">
                   <UserCheck className="w-4 h-4 text-blue-400" />
@@ -338,7 +334,7 @@ export default function SmartKiosk() {
               </div>
             </div>
 
-            {/* Scan Feedback Result Alert (Appears below camera when scanned) */}
+            {/* Attendance Verification Feedback Alert */}
             {scanResult && (
               <div className={`glass-panel p-6 rounded-2xl border-2 transition-all ${
                 scanResult.status === 'SUCCESS' 
@@ -351,7 +347,7 @@ export default function SmartKiosk() {
                   </div>
                   <div>
                     <h3 className={`text-base font-bold ${scanResult.status === 'SUCCESS' ? 'text-emerald-300' : 'text-rose-300'}`}>
-                      {scanResult.status === 'SUCCESS' ? 'Attendance Verified & Granted!' : 'Security Verification Rejected'}
+                      {scanResult.status === 'SUCCESS' ? 'Face Verified & Attendance Marked!' : 'Proxy Security Alert: No Face Detected'}
                     </h3>
                     <p className="text-xs text-slate-300 mt-1">
                       {scanResult.message}
@@ -361,7 +357,7 @@ export default function SmartKiosk() {
                         <img src={scanResult.student.avatar} alt="Student" className="w-8 h-8 rounded-full" />
                         <div>
                           <p className="font-bold text-white">{scanResult.student.name}</p>
-                          <p className="text-[10px] text-slate-400">{scanResult.student.grade} • Database QR Match Verified at {scanResult.student.check_in_time}</p>
+                          <p className="text-[10px] text-slate-400">{scanResult.student.grade} • Marked {scanResult.student.check_in_time}</p>
                         </div>
                       </div>
                     )}
@@ -371,16 +367,16 @@ export default function SmartKiosk() {
             )}
           </div>
 
-          {/* Right Column: Student Canva ID Cards & Fraud QR Scanner Tester */}
+          {/* Right Column: Student Roster & Live Verification Triggers */}
           <div className="space-y-6">
             <div className="glass-panel p-6 rounded-2xl space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    Student ID Cards & Database QR Matcher
+                    Student Roster & Verification Triggers
                   </h3>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Click <strong>Tap ID</strong> to test database QR lookup or <strong>Card</strong> to view Canva designs.
+                    Click <strong>Verify Attendance</strong> to mark present or <strong>Card</strong> to view Canva designs.
                   </p>
                 </div>
               </div>
@@ -402,81 +398,15 @@ export default function SmartKiosk() {
                         <span>Card</span>
                       </button>
                       <button
-                        onClick={() => handleScanID(student.id)}
+                        onClick={() => handleVerifyAttendance(student.id)}
                         className="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/40 flex items-center gap-1 transition cursor-pointer"
                       >
-                        <QrCode className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Tap ID</span>
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Verify Attendance</span>
                       </button>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Custom / Fraud QR Scanner Test Box */}
-              <div className="pt-3 border-t border-slate-800/80 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Test Custom or Fraud QR Code Rejection</span>
-                  </label>
-                  <span className="text-[10px] text-slate-400">Click pills below to autofill & test</span>
-                </div>
-
-                {/* Quick Interactive Testing Pills */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] text-emerald-400 font-bold uppercase">Valid QR IDs:</span>
-                    {['9901', '9902', '9903', '9904', '9905', '12345'].map(id => (
-                      <button
-                        key={id}
-                        onClick={() => {
-                          setCustomQrInput(id);
-                          handleScanID(id);
-                        }}
-                        className="px-2 py-0.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 rounded text-[10px] font-mono border border-emerald-500/30 transition cursor-pointer"
-                      >
-                        #{id}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] text-rose-400 font-bold uppercase">Fake/Fraud QR IDs:</span>
-                    {['FRAUD_QR_999', 'UNREGISTERED_STU', 'STU-8888'].map(id => (
-                      <button
-                        key={id}
-                        onClick={() => {
-                          setCustomQrInput(id);
-                          handleScanID(id);
-                        }}
-                        className="px-2 py-0.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded text-[10px] font-mono border border-rose-500/30 transition cursor-pointer"
-                      >
-                        {id}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={customQrInput}
-                    onChange={(e) => setCustomQrInput(e.target.value)}
-                    placeholder="Type or click any QR ID above..."
-                    className="flex-1 bg-slate-950 border border-slate-800 text-xs text-white px-3 py-2 rounded-xl focus:ring-1 focus:ring-amber-500 outline-none font-mono"
-                  />
-                  <button
-                    onClick={() => {
-                      if (customQrInput.trim()) {
-                        handleScanID(customQrInput.trim());
-                      }
-                    }}
-                    className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs rounded-xl border border-amber-500/40 transition cursor-pointer shrink-0"
-                  >
-                    Test QR Match
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -538,7 +468,7 @@ export default function SmartKiosk() {
 
               <div>
                 <h3 className="text-base font-bold text-white">Canva ID Card • {viewCardModal.name}</h3>
-                <p className="text-xs text-slate-400">Encoded QR Payload: <code className="text-amber-300 font-mono">EDU-{viewCardModal.id}-2026</code></p>
+                <p className="text-xs text-slate-400">Encrypted Database QR Token: <code className="text-amber-300 font-mono">EDU-{viewCardModal.id}-2026</code></p>
               </div>
 
               <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center p-2">
@@ -560,13 +490,13 @@ export default function SmartKiosk() {
                 </a>
                 <button
                   onClick={() => {
-                    handleScanID(viewCardModal.id);
+                    handleVerifyAttendance(viewCardModal.id);
                     setViewCardModal(null);
                   }}
                   className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer"
                 >
-                  <QrCode className="w-4 h-4" />
-                  <span>Scan This ID Live</span>
+                  <UserCheck className="w-4 h-4" />
+                  <span>Verify Attendance</span>
                 </button>
               </div>
             </div>
