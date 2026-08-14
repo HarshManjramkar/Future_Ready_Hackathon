@@ -83,7 +83,6 @@ export default function SmartKiosk() {
             });
           } catch (e) {
             console.warn("Tracking.js init exception:", e);
-            // Fallback for demo camera feed
             setFaceDetected(true);
           }
         } else {
@@ -233,8 +232,10 @@ export default function SmartKiosk() {
           </div>
         </div>
 
+        {/* MAIN 2-COLUMN LAYOUT: CAMERA (LEFT) & ID CARDS (RIGHT) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column: Webcam & Scanner Feed */}
+          
+          {/* Left Column: Camera Frame & Computer Vision Status */}
           <div className="space-y-6">
             <div className={`glass-panel p-4 rounded-2xl relative overflow-hidden transition-all duration-300 ${
               greenFlash ? 'border-2 border-emerald-400 pulse-glow-green' : ''
@@ -264,7 +265,7 @@ export default function SmartKiosk() {
                 ) : (
                   <div className="flex flex-col items-center space-y-2 text-slate-500">
                     <Camera className="w-12 h-12 stroke-[1.5]" />
-                    <p className="text-xs text-center">Click "Start Kiosk Camera" to test live camera face tracking & anti-proxy verification</p>
+                    <p className="text-xs text-center">Click "Start Kiosk Camera" above to test live camera face tracking & anti-proxy verification</p>
                   </div>
                 )}
               </div>
@@ -284,52 +285,7 @@ export default function SmartKiosk() {
               </div>
             </div>
 
-            {/* Student Canva ID Cards & Demo Triggers */}
-            <div className="glass-panel p-6 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    Student ID Cards & Demo Triggers (Canva Cards)
-                  </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Click <strong>Scan ID</strong> to test attendance or click <strong>View Card</strong> to inspect Canva graphics.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {demoStudents.map(student => (
-                  <div key={student.id} className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
-                    <div>
-                      <p className="font-bold text-white text-xs">{student.name}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">ID #{student.id} • {student.class}</p>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => setViewCardModal(student)}
-                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-medium flex items-center gap-1 border border-slate-700 transition cursor-pointer"
-                        title="Inspect Canva Card"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-blue-400" />
-                        <span>Card</span>
-                      </button>
-                      <button
-                        onClick={() => handleScanID(student.id)}
-                        className="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/40 flex items-center gap-1 transition cursor-pointer"
-                      >
-                        <QrCode className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Tap ID</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Scan Feedback Result Card & Roster */}
-          <div className="space-y-6">
-            {/* Scan Feedback Result Card */}
+            {/* Scan Feedback Result Alert (Appears below camera when scanned) */}
             {scanResult && (
               <div className={`glass-panel p-6 rounded-2xl border-2 transition-all ${
                 scanResult.status === 'SUCCESS' 
@@ -360,45 +316,93 @@ export default function SmartKiosk() {
                 </div>
               </div>
             )}
+          </div>
 
-            {/* Live Attendance Roster */}
+          {/* Right Column: Student Canva ID Cards & Demo Triggers (Right next to camera!) */}
+          <div className="space-y-6">
             <div className="glass-panel p-6 rounded-2xl space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
-                  Live Attendance Roster (Grade 10)
-                </h3>
-                <span className="text-xs text-emerald-400 font-medium">
-                  {recentLogs.filter(s => s.attendance_status === 'PRESENT').length} / {recentLogs.length} Present
-                </span>
+                <div>
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Student ID Cards & Demo Triggers (Canva Cards)
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Click <strong>Tap ID</strong> to scan or <strong>Card</strong> to inspect physical Canva designs.
+                  </p>
+                </div>
               </div>
 
-              <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-                {recentLogs.map((student) => (
-                  <div key={student.id} className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-3">
-                      <img src={student.avatar} alt={student.name} className="w-9 h-9 rounded-full object-cover border border-slate-700" />
-                      <div>
-                        <p className="font-bold text-white">{student.name}</p>
-                        <p className="text-[10px] text-slate-400 font-mono">{student.grade} • ID #{student.id}</p>
-                      </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {demoStudents.map(student => (
+                  <div key={student.id} className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center justify-between gap-2 hover:border-slate-700 transition">
+                    <div>
+                      <p className="font-bold text-white text-xs">{student.name}</p>
+                      <p className="text-[10px] text-slate-400 font-mono">ID #{student.id} • {student.class}</p>
                     </div>
-
-                    <div className="text-right">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        student.attendance_status === 'PRESENT'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                          : 'bg-slate-800 text-slate-400'
-                      }`}>
-                        {student.attendance_status}
-                      </span>
-                      {student.check_in_time !== '--' && (
-                        <p className="text-[10px] text-slate-400 font-mono mt-1">{student.check_in_time}</p>
-                      )}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setViewCardModal(student)}
+                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-medium flex items-center gap-1 border border-slate-700 transition cursor-pointer"
+                        title="Inspect Canva Card"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Card</span>
+                      </button>
+                      <button
+                        onClick={() => handleScanID(student.id)}
+                        className="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/40 flex items-center gap-1 transition cursor-pointer"
+                      >
+                        <QrCode className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Tap ID</span>
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
+
+        </div>
+
+        {/* BOTTOM SECTION: LIVE ATTENDANCE ROSTER */}
+        <div className="glass-panel p-6 rounded-2xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+                Live Attendance Roster (Grade 10)
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">Real-time attendance check-in status log for Victory High School</p>
+            </div>
+            <span className="text-xs text-emerald-400 font-bold px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+              {recentLogs.filter(s => s.attendance_status === 'PRESENT').length} / {recentLogs.length} Present
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto pr-1">
+            {recentLogs.map((student) => (
+              <div key={student.id} className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-3">
+                  <img src={student.avatar} alt={student.name} className="w-9 h-9 rounded-full object-cover border border-slate-700" />
+                  <div>
+                    <p className="font-bold text-white">{student.name}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">{student.grade} • ID #{student.id}</p>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    student.attendance_status === 'PRESENT'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {student.attendance_status}
+                  </span>
+                  {student.check_in_time !== '--' && (
+                    <p className="text-[10px] text-slate-400 font-mono mt-1">{student.check_in_time}</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
