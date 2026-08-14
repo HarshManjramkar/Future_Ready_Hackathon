@@ -380,7 +380,7 @@ export default function App() {
   return (
     <>
       {showIntro && <IntroScreen onComplete={() => setShowIntro(false)} />}
-      <div className="flex min-h-screen bg-[#07090e] text-slate-100 font-sans selection:bg-indigo-500 selection:text-white relative">
+      <div className="flex min-h-screen font-sans relative transition-colors duration-300" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
       {/* Sidebar Navigation */}
       <Sidebar 
         activeTab={activeTab} 

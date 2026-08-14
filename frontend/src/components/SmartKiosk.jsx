@@ -224,15 +224,15 @@ export default function SmartKiosk() {
         <div className="glass-panel p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2.5 py-0.5 rounded border border-emerald-500/30">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/30">
                 Google AI Face Verification Kiosk
               </span>
-              <span className="text-xs text-slate-400">Victory High School • Smart Kiosk</span>
+              <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Victory High School • Smart Kiosk</span>
             </div>
-            <h2 className="text-xl font-extrabold text-white mt-1 flex items-center gap-2">
+            <h2 className="text-xl font-extrabold mt-1 flex items-center gap-2" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
               <span>Smart Kiosk: Real-Time Face Recognition Attendance</span>
             </h2>
-            <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+            <p className="text-xs mt-1 max-w-2xl" style={{ color: 'var(--text-secondary)' }}>
               Attendance is verified in real-time using <strong>Google MediaPipe AI Face Detection</strong>. Each student ID contains a unique encrypted signature matched internally to the school database.
             </p>
           </div>
@@ -241,7 +241,7 @@ export default function SmartKiosk() {
             {!cameraActive ? (
               <button
                 onClick={startCamera}
-                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all"
               >
                 <Camera className="w-4 h-4" />
                 <span>Start Kiosk Camera</span>
@@ -249,9 +249,9 @@ export default function SmartKiosk() {
             ) : (
               <button
                 onClick={stopCamera}
-                className="px-5 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs rounded-xl border border-rose-500/40 flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-500 font-bold text-xs rounded-xl border border-rose-500/40 flex items-center gap-2 cursor-pointer transition-all"
               >
-                <CameraOff className="w-4 h-4 text-rose-400" />
+                <CameraOff className="w-4 h-4 text-rose-500" />
                 <span>Turn Off Camera</span>
               </button>
             )}
@@ -259,23 +259,23 @@ export default function SmartKiosk() {
         </div>
 
         {/* 🧪 JUDGE TESTING INSTRUCTIONS CARD */}
-        <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-300 uppercase tracking-wider">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
+        <div className="p-4 rounded-2xl glass-panel space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--accent-color)' }}>
+            <Sparkles className="w-4 h-4" />
             <span>🧪 Judge Quick Testing Guide (Face Recognition Kiosk)</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-300">
-            <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
-              <span className="font-bold text-emerald-400 block">1. Verify Face Attendance</span>
-              <p className="text-[11px] text-slate-400">Click <strong>Start Kiosk Camera</strong> and stay in camera view (green box tracks face). Click <strong>Verify Attendance</strong> &rarr; Marked <strong>PRESENT</strong>!</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 rounded-xl app-subcard space-y-1">
+              <span className="font-bold text-emerald-500 block">1. Verify Face Attendance</span>
+              <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Click <strong>Start Kiosk Camera</strong> and stay in camera view (green box tracks face). Click <strong>Verify Attendance</strong> &rarr; Marked <strong>PRESENT</strong>!</p>
             </div>
-            <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
-              <span className="font-bold text-rose-400 block">2. Test Anti-Proxy Security</span>
-              <p className="text-[11px] text-slate-400">Cover your camera lens with your hand (status turns to <em>No Face Detected</em>). Click <strong>Verify Attendance</strong> &rarr; System blocks proxy attendance!</p>
+            <div className="p-3 rounded-xl app-subcard space-y-1">
+              <span className="font-bold text-rose-500 block">2. Test Anti-Proxy Security</span>
+              <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Cover your camera lens with your hand (status turns to <em>No Face Detected</em>). Click <strong>Verify Attendance</strong> &rarr; System blocks proxy attendance!</p>
             </div>
-            <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
-              <span className="font-bold text-blue-400 block">3. Inspect Student ID Cards</span>
-              <p className="text-[11px] text-slate-400">Click the <strong>Card</strong> button next to any student to view or download their Canva Student ID card PNG graphics with embedded database signatures.</p>
+            <div className="p-3 rounded-xl app-subcard space-y-1">
+              <span className="font-bold text-sky-500 block">3. Inspect Student ID Cards</span>
+              <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Click the <strong>Card</strong> button next to any student to view or download their Canva Student ID card PNG graphics with embedded database signatures.</p>
             </div>
           </div>
         </div>
@@ -311,7 +311,7 @@ export default function SmartKiosk() {
                     )}
                   </>
                 ) : (
-                  <div className="flex flex-col items-center space-y-2 text-slate-500">
+                  <div className="flex flex-col items-center space-y-2 text-slate-400">
                     <Camera className="w-12 h-12 stroke-[1.5]" />
                     <p className="text-xs text-center">Click "Start Kiosk Camera" above to test live camera face tracking & anti-proxy verification</p>
                   </div>
@@ -319,15 +319,15 @@ export default function SmartKiosk() {
               </div>
 
               {/* Computer Vision Engine Status Bar */}
-              <div className="mt-4 p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs text-slate-300">
-                  <UserCheck className="w-4 h-4 text-blue-400" />
+              <div className="mt-4 p-3.5 rounded-xl app-subcard flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  <UserCheck className="w-4 h-4 text-sky-500" />
                   <span>Biometric Vision Engine:</span>
-                  <span className="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{engineType}</span>
+                  <span className="text-[10px] text-emerald-500 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{engineType}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <span className={`w-2.5 h-2.5 rounded-full ${faceDetected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                  <span className={`font-bold ${faceDetected ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className={`font-bold ${faceDetected ? 'text-emerald-500' : 'text-rose-500'}`}>
                     {faceDetected ? 'Face Detected (Live)' : 'No Face Detected'}
                   </span>
                 </div>
@@ -338,26 +338,26 @@ export default function SmartKiosk() {
             {scanResult && (
               <div className={`glass-panel p-6 rounded-2xl border-2 transition-all ${
                 scanResult.status === 'SUCCESS' 
-                  ? 'border-emerald-500/60 bg-emerald-950/20 pulse-glow-green' 
-                  : 'border-rose-500/60 bg-rose-950/20'
+                  ? 'border-emerald-500/60 bg-emerald-500/10 pulse-glow-green' 
+                  : 'border-rose-500/60 bg-rose-500/10'
               }`}>
                 <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-xl ${scanResult.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                  <div className={`p-3 rounded-xl ${scanResult.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-rose-500/20 text-rose-500'}`}>
                     {scanResult.status === 'SUCCESS' ? <CheckCircle2 className="w-8 h-8" /> : <ShieldAlert className="w-8 h-8" />}
                   </div>
                   <div>
-                    <h3 className={`text-base font-bold ${scanResult.status === 'SUCCESS' ? 'text-emerald-300' : 'text-rose-300'}`}>
+                    <h3 className={`text-base font-bold ${scanResult.status === 'SUCCESS' ? 'text-emerald-500' : 'text-rose-500'}`}>
                       {scanResult.status === 'SUCCESS' ? 'Face Verified & Attendance Marked!' : 'Proxy Security Alert: No Face Detected'}
                     </h3>
-                    <p className="text-xs text-slate-300 mt-1">
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
                       {scanResult.message}
                     </p>
                     {scanResult.student && (
-                      <div className="mt-3 flex items-center gap-3 text-xs bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                      <div className="mt-3 flex items-center gap-3 text-xs app-subcard p-2.5 rounded-lg">
                         <img src={scanResult.student.avatar} alt="Student" className="w-8 h-8 rounded-full" />
                         <div>
-                          <p className="font-bold text-white">{scanResult.student.name}</p>
-                          <p className="text-[10px] text-slate-400">{scanResult.student.grade} • Marked {scanResult.student.check_in_time}</p>
+                          <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{scanResult.student.name}</p>
+                          <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{scanResult.student.grade} • Marked {scanResult.student.check_in_time}</p>
                         </div>
                       </div>
                     )}
@@ -372,10 +372,10 @@ export default function SmartKiosk() {
             <div className="glass-panel p-6 rounded-2xl space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                  <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
                     Student Roster & Verification Triggers
                   </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                     Click <strong>Verify Attendance</strong> to mark present or <strong>Card</strong> to view Canva designs.
                   </p>
                 </div>
@@ -383,25 +383,25 @@ export default function SmartKiosk() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {demoStudents.map(student => (
-                  <div key={student.id} className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center justify-between gap-2 hover:border-slate-700 transition">
+                  <div key={student.id} className="p-3 rounded-xl app-subcard flex items-center justify-between gap-2 transition-all">
                     <div>
-                      <p className="font-bold text-white text-xs">{student.name}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">ID #{student.id} • {student.class}</p>
+                      <p className="font-bold text-xs" style={{ color: 'var(--text-primary)' }}>{student.name}</p>
+                      <p className="text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>ID #{student.id} • {student.class}</p>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => setViewCardModal(student)}
-                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-medium flex items-center gap-1 border border-slate-700 transition cursor-pointer"
+                        className="p-1.5 rounded-lg text-[10px] font-medium flex items-center gap-1 app-subcard transition cursor-pointer"
                         title="Inspect Canva Card"
                       >
-                        <Eye className="w-3.5 h-3.5 text-blue-400" />
+                        <Eye className="w-3.5 h-3.5 text-sky-500" />
                         <span>Card</span>
                       </button>
                       <button
                         onClick={() => handleVerifyAttendance(student.id)}
-                        className="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/40 flex items-center gap-1 transition cursor-pointer"
+                        className="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-500 rounded-lg text-[10px] font-bold border border-emerald-500/40 flex items-center gap-1 transition cursor-pointer"
                       >
-                        <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
                         <span>Verify Attendance</span>
                       </button>
                     </div>
@@ -417,37 +417,37 @@ export default function SmartKiosk() {
         <div className="glass-panel p-6 rounded-2xl space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+              <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
                 Live Attendance Roster (Grade 10)
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">Real-time attendance check-in status log for Victory High School</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>Real-time attendance check-in status log for Victory High School</p>
             </div>
-            <span className="text-xs text-emerald-400 font-bold px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+            <span className="text-xs text-emerald-500 font-bold px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
               {recentLogs.filter(s => s.attendance_status === 'PRESENT').length} / {recentLogs.length} Present
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto pr-1">
             {recentLogs.map((student) => (
-              <div key={student.id} className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+              <div key={student.id} className="p-3 rounded-xl app-subcard flex items-center justify-between text-xs">
                 <div className="flex items-center gap-3">
-                  <img src={student.avatar} alt={student.name} className="w-9 h-9 rounded-full object-cover border border-slate-700" />
+                  <img src={student.avatar} alt={student.name} className="w-9 h-9 rounded-full object-cover border border-slate-400/30" />
                   <div>
-                    <p className="font-bold text-white">{student.name}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">{student.grade} • ID #{student.id}</p>
+                    <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{student.name}</p>
+                    <p className="text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>{student.grade} • ID #{student.id}</p>
                   </div>
                 </div>
 
                 <div className="text-right">
                   <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                     student.attendance_status === 'PRESENT'
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30'
+                      : 'bg-slate-500/20 text-slate-400'
                   }`}>
                     {student.attendance_status}
                   </span>
                   {student.check_in_time !== '--' && (
-                    <p className="text-[10px] text-slate-400 font-mono mt-1">{student.check_in_time}</p>
+                    <p className="text-[10px] font-mono mt-1" style={{ color: 'var(--text-secondary)' }}>{student.check_in_time}</p>
                   )}
                 </div>
               </div>
@@ -461,14 +461,14 @@ export default function SmartKiosk() {
             <div className="glass-panel p-6 rounded-2xl max-w-md w-full border border-slate-700 space-y-4 relative">
               <button 
                 onClick={() => setViewCardModal(null)}
-                className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800 cursor-pointer"
+                className="absolute top-4 right-4 p-1.5 rounded-lg app-subcard cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div>
-                <h3 className="text-base font-bold text-white">Canva ID Card • {viewCardModal.name}</h3>
-                <p className="text-xs text-slate-400">Encrypted Database QR Token: <code className="text-amber-300 font-mono">EDU-{viewCardModal.id}-2026</code></p>
+                <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Canva ID Card • {viewCardModal.name}</h3>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Encrypted Database QR Token: <code className="text-amber-500 font-mono">EDU-{viewCardModal.id}-2026</code></p>
               </div>
 
               <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center p-2">
@@ -483,7 +483,7 @@ export default function SmartKiosk() {
                 <a
                   href={viewCardModal.cardImg}
                   download={`ID_Card_${viewCardModal.name}.png`}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download Card PNG</span>
@@ -493,7 +493,7 @@ export default function SmartKiosk() {
                     handleVerifyAttendance(viewCardModal.id);
                     setViewCardModal(null);
                   }}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer transition-all"
                 >
                   <UserCheck className="w-4 h-4" />
                   <span>Verify Attendance</span>
