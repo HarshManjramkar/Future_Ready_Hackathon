@@ -211,6 +211,28 @@ export default function SmartKiosk() {
           </div>
         </div>
 
+        {/* 🧪 JUDGE TESTING INSTRUCTIONS CARD */}
+        <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-300 uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <span>🧪 Judge Quick Testing Guide (Anti-Proxy Computer Vision)</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-300">
+            <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+              <span className="font-bold text-emerald-400 block">1. Pass Attendance Test</span>
+              <p className="text-[11px] text-slate-400">Click <strong>Start Kiosk Camera</strong> and stay in camera view (green bounding box appears). Click <strong>Tap ID</strong> for any student to verify attendance.</p>
+            </div>
+            <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+              <span className="font-bold text-rose-400 block">2. Anti-Proxy Block Test</span>
+              <p className="text-[11px] text-slate-400">Cover your camera lens with your hand (status turns to <em>No Face Detected</em>). Click <strong>Tap ID</strong> &rarr; System blocks proxy attendance with a red alert!</p>
+            </div>
+            <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+              <span className="font-bold text-blue-400 block">3. Inspect Physical Cards</span>
+              <p className="text-[11px] text-slate-400">Click the <strong>Card</strong> button next to any student below to view or download their Canva Student ID card PNG graphics.</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column: Webcam & Scanner Feed */}
           <div className="space-y-6">

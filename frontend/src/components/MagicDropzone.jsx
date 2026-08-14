@@ -161,6 +161,28 @@ export default function MagicDropzone({ onParsedDocument, autoLoadPreset, onAuto
         </div>
       </div>
 
+      {/* 🧪 JUDGE TESTING INSTRUCTIONS CARD */}
+      <div className="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/40 space-y-2">
+        <div className="flex items-center gap-2 text-xs font-bold text-purple-300 uppercase tracking-wider">
+          <Sparkles className="w-4 h-4 text-purple-400" />
+          <span>🧪 Judge Quick Testing Guide (Zero-Shot VLM Form Reader)</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-300">
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+            <span className="font-bold text-purple-300 block">1. Test Clean Form</span>
+            <p className="text-[11px] text-slate-400">Click <strong>Clean Form</strong> above. Gemini 1.5 Vision parses handwritten fields into JSON automatically with 100% confidence.</p>
+          </div>
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+            <span className="font-bold text-amber-300 block">2. Test Edge-Case Form</span>
+            <p className="text-[11px] text-slate-400">Click <strong>Messy Form</strong> above. Smudged handwriting triggers a review flag and routes data to Admin Inbox for human verification.</p>
+          </div>
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+            <span className="font-bold text-indigo-300 block">3. Test VLM → Solver Pipeline</span>
+            <p className="text-[11px] text-slate-400">Click <strong>Teacher Leave Form</strong>. Gemini VLM parses leave details AND automatically executes OR-Tools timetable re-allocation!</p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column: Upload / Scanner Zone */}
         <div className="space-y-6">
