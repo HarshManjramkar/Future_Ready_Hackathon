@@ -414,18 +414,57 @@ export default function SmartKiosk() {
               </div>
 
               {/* Custom / Fraud QR Scanner Test Box */}
-              <div className="pt-3 border-t border-slate-800/80 space-y-2">
-                <label className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Test Fraud / Unregistered QR Code Rejection</span>
-                </label>
+              <div className="pt-3 border-t border-slate-800/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Test Custom or Fraud QR Code Rejection</span>
+                  </label>
+                  <span className="text-[10px] text-slate-400">Click pills below to autofill & test</span>
+                </div>
+
+                {/* Quick Interactive Testing Pills */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-emerald-400 font-bold uppercase">Valid QR IDs:</span>
+                    {['9901', '9902', '9903', '9904', '9905', '12345'].map(id => (
+                      <button
+                        key={id}
+                        onClick={() => {
+                          setCustomQrInput(id);
+                          handleScanID(id);
+                        }}
+                        className="px-2 py-0.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 rounded text-[10px] font-mono border border-emerald-500/30 transition cursor-pointer"
+                      >
+                        #{id}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-rose-400 font-bold uppercase">Fake/Fraud QR IDs:</span>
+                    {['FRAUD_QR_999', 'UNREGISTERED_STU', 'STU-8888'].map(id => (
+                      <button
+                        key={id}
+                        onClick={() => {
+                          setCustomQrInput(id);
+                          handleScanID(id);
+                        }}
+                        className="px-2 py-0.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded text-[10px] font-mono border border-rose-500/30 transition cursor-pointer"
+                      >
+                        {id}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={customQrInput}
                     onChange={(e) => setCustomQrInput(e.target.value)}
-                    placeholder="Type fake QR (e.g. FAKE_QR_999)..."
-                    className="flex-1 bg-slate-950 border border-slate-800 text-xs text-white px-3 py-2 rounded-xl focus:ring-1 focus:ring-amber-500 outline-none"
+                    placeholder="Type or click any QR ID above..."
+                    className="flex-1 bg-slate-950 border border-slate-800 text-xs text-white px-3 py-2 rounded-xl focus:ring-1 focus:ring-amber-500 outline-none font-mono"
                   />
                   <button
                     onClick={() => {
