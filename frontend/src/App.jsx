@@ -47,7 +47,7 @@ export default function App() {
   // Apply theme classes to document root for global Tailwind v4 bindings
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('theme-midnight', 'theme-stone');
+    root.classList.remove('theme-midnight', 'theme-stone', 'theme-light');
     if (activeTheme !== 'emerald') {
       root.classList.add(`theme-${activeTheme}`);
     }
@@ -165,11 +165,11 @@ export default function App() {
       action: () => executeCommand('theme midnight')
     },
     {
-      id: 'theme-stone',
-      keywords: ['theme stone', 'stone', 'warm', 'light', 'paper'],
-      title: '🎨 Switch to Warm Stone Theme',
-      subtitle: 'Set warm paper light look',
-      action: () => executeCommand('theme stone')
+      id: 'theme-light',
+      keywords: ['theme light', 'light', 'clean', 'white', 'day'],
+      title: '🎨 Switch to Clean Light Theme',
+      subtitle: 'Set crisp, minimal light mode with clean borders',
+      action: () => executeCommand('theme light')
     },
     {
       id: 'absent-t101',
@@ -237,14 +237,14 @@ export default function App() {
       setTourStep(0);
       triggerAlert("Initializing Guided Tour...");
     } else if (cmd === 'theme') {
-      triggerAlert("Try typing: 'theme emerald', 'theme midnight', 'theme stone'");;
+      triggerAlert("Try typing: 'theme emerald', 'theme midnight', 'theme light'");
     } else if (cmd.startsWith('theme ')) {
       const targetTheme = cmd.replace('theme ', '').trim();
-      if (['midnight', 'stone', 'emerald'].includes(targetTheme)) {
+      if (['midnight', 'light', 'emerald'].includes(targetTheme)) {
         setActiveTheme(targetTheme);
         triggerAlert(`Theme shifted to ${targetTheme.toUpperCase()}!`);
       } else {
-        triggerAlert(`Unknown theme: ${targetTheme}. Try 'midnight', 'stone', or 'emerald'.`);
+        triggerAlert(`Unknown theme: ${targetTheme}. Try 'midnight', 'light', or 'emerald'.`);
       }
     } else if (cmd.startsWith('absent ')) {
       const teacherId = cmd.replace('absent ', '').toUpperCase().trim();

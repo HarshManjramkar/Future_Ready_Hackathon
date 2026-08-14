@@ -39,21 +39,21 @@
     --bento-shadow: 0 1px 3px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.5);
   }
 
-  .theme-stone {
-    --bg-color: #f0ede8;
-    --bg-dots: radial-gradient(rgba(120, 113, 108, 0.12) 1.5px, transparent 1.5px);
-    --panel-bg: #eae7e1;
-    --panel-border: rgba(120, 113, 108, 0.18);
-    --text-primary: #1c1917;
-    --text-secondary: #57534e;
-    --accent-color: #0f766e;
-    --sidebar-bg: #292524;
-    --sidebar-text: #a8a29e;
+  .theme-light {
+    --bg-color: #f8fafc;
+    --bg-dots: radial-gradient(rgba(148, 163, 184, 0.15) 1.5px, transparent 1.5px);
+    --panel-bg: #ffffff;
+    --panel-border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --accent-color: #0284c7;
+    --sidebar-bg: #0f172a;
+    --sidebar-text: #94a3b8;
 
-    /* Soft warm neumorphic — muted, no glare */
-    --neumorphic-outset: 5px 5px 12px rgba(120,113,108,0.3), -4px -4px 10px rgba(255,255,255,0.55);
-    --neumorphic-inset: inset 4px 4px 8px rgba(120,113,108,0.28), inset -4px -4px 8px rgba(255,255,255,0.5);
-    --bento-shadow: 0 1px 4px rgba(120,113,108,0.18);
+    /* Clean subtle light shadows — NO glow */
+    --neumorphic-outset: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --neumorphic-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+    --bento-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   }
 
   body {

@@ -76,8 +76,8 @@ export default function DashboardOverview({
 
   const themes = [
     { id: 'emerald',  name: 'Emerald Forest', dot: '#10b981' },
-    { id: 'midnight', name: 'Midnight',        dot: '#6366f1' },
-    { id: 'stone',    name: 'Warm Stone',      dot: '#0f766e' },
+    { id: 'midnight', name: 'Midnight Dark',  dot: '#6366f1' },
+    { id: 'light',    name: 'Clean Light',    dot: '#0284c7' },
   ];
 
   const riskColor = (level) => {
