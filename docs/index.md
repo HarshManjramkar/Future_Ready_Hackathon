@@ -9,9 +9,10 @@ Welcome to the comprehensive documentation suite for **EduFlow OS**, an Autonomo
 
 | Document | Purpose & Scope | Key Highlights |
 |---|---|---|
-| 🌊 [**End-to-End Pipeline Guide**](file:///Users/devang/Desktop/Future_Ready_Hackathon/docs/end-to-end-pipeline-guide.md) | Comprehensive stage-by-stage system lifecycle | Form VLM Ingestion $\rightarrow$ CP-SAT Solver $\rightarrow$ Smart Kiosk $\rightarrow$ Truancy AI |
-| 📡 [**REST API Reference**](file:///Users/devang/Desktop/Future_Ready_Hackathon/docs/api-reference.md) | Complete 14-endpoint REST specification | Request/response schemas, error handling, status codes |
-| 🚀 [**Deployment & Operations Guide**](file:///Users/devang/Desktop/Future_Ready_Hackathon/docs/deployment-operations-guide.md) | Setup, Docker, Vercel, and quality gate execution | Run scripts, environment variables, security compliance |
+| 🌊 [**End-to-End Pipeline Guide**](docs/end-to-end-pipeline-guide.md) | Comprehensive stage-by-stage system lifecycle | Form VLM Ingestion $\rightarrow$ CP-SAT Solver $\rightarrow$ Smart Kiosk $\rightarrow$ Truancy AI |
+| 📡 [**REST API Reference**](docs/api-reference.md) | Complete 14-endpoint REST specification | Request/response schemas, error handling, status codes |
+| 🚀 [**Production Deployment Blueprint**](docs/deployment.md) | Complete zero-cost, zero-cold-start production guide | Vercel Edge + Render + UptimeRobot keep-alive + GZip |
+| 🛠️ [**Operations & Setup Guide**](docs/deployment-operations-guide.md) | Local development, environment variables, test runners | Run scripts, environment variables, local testing |
 
 ---
 

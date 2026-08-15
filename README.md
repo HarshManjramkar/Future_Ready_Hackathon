@@ -123,6 +123,7 @@ Explore the comprehensive engineering documentation in the [`docs/`](docs/) dire
 | Document | Description |
 |---|---|
 | [**Architecture & System Design**](docs/ARCHITECTURE.md) | Component topologies, data flow models, and constraint schemas |
+| [**Production Deployment Blueprint**](docs/deployment.md) | Exhaustive zero-cost, zero-cold-start deployment guide with keep-alive |
 | [**Software Requirements (SRS)**](docs/srs.md) | Functional requirements, system constraints, and interface specs |
 | [**Product Requirements (PRD)**](docs/prd.md) | Vision, user personas, success metrics, and feature milestones |
 | [**REST API Reference**](docs/api-reference.md) | Full endpoint contracts, request/response schemas, and payload examples |
