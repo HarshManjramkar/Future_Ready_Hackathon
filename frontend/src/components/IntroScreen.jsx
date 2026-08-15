@@ -10,7 +10,7 @@ export default function IntroScreen({ onComplete }) {
     setGatesOpened(true);
     setTimeout(() => {
       setPhase('solution');
-    }, 1100);
+    }, 1650);
   };
 
   return (
