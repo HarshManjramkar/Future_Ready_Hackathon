@@ -15,14 +15,48 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200"
   };
 
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(currentStudent.id || "9901")}`;
+  const qrPayload = JSON.stringify({ id: currentStudent.id || "9901" });
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrPayload)}`;
 
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200">
+    <>
+    <style>{`
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+        #printable-id-card, #printable-id-card * {
+          visibility: visible !important;
+        }
+        #printable-id-card {
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
+          max-width: 400px !important;
+          margin: 0 !important;
+          box-shadow: none !important;
+          border: 2px solid #000 !important;
+          background: white !important;
+          color: black !important;
+        }
+        /* Hide backgrounds and gradients for printing */
+        #printable-id-card .bg-gradient-to-b {
+          background: white !important;
+        }
+        #printable-id-card .text-white {
+          color: black !important;
+        }
+        #printable-id-card .text-amber-400 {
+          color: #b45309 !important;
+        }
+      }
+    `}</style>
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200 print:bg-white print:p-0">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
         {/* Modal Header */}
         <div className="px-7 py-5 border-b border-slate-800 flex items-center justify-between">
@@ -65,7 +99,7 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <img src={s.avatar} alt={s.name} className="w-9 h-9 rounded-xl object-cover border border-slate-700" />
+                    <img src={s.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} alt={s.name} className="w-9 h-9 rounded-xl object-cover border border-slate-700" />
                     <div>
                       <h4 className="text-xs font-bold text-white">{s.name}</h4>
                       <p className="text-[10px] font-mono text-slate-400">ID: STU-{s.id}</p>
@@ -78,9 +112,9 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
           </div>
 
           {/* Right Side: High-Tech Printable Holographic Badge Preview (7 Cols) */}
-          <div className="md:col-span-7 flex flex-col items-center justify-center space-y-5">
+          <div className="md:col-span-7 flex flex-col items-center justify-center space-y-5 print:m-0 print:p-0">
             {/* Holographic ID Badge Container */}
-            <div className="w-full max-w-sm bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden space-y-5 print:shadow-none">
+            <div id="printable-id-card" className="w-full max-w-sm bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden space-y-5">
               {/* Badge Gold Crest Header */}
               <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
                 <div className="flex items-center gap-2.5">
@@ -98,7 +132,7 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
               {/* Student Details & Photo */}
               <div className="flex items-center gap-4">
                 <img 
-                  src={currentStudent.avatar} 
+                  src={currentStudent.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} 
                   alt={currentStudent.name} 
                   className="w-20 h-24 rounded-2xl object-cover border-2 border-amber-500/50 shadow-md shrink-0"
                 />
@@ -150,5 +184,6 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
