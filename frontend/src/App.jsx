@@ -126,6 +126,7 @@ export default function App() {
           onTriggerVlm={() => setActiveTab('dropzone')}
           onTriggerMassAbsence={handleDemoTriggerMassAbsence}
           onResetDemo={handleResetDemo}
+          onTriggerTour={() => setTourStep(0)}
         />
         <main className="flex-1 overflow-y-auto">{renderActiveView()}</main>
       </div>

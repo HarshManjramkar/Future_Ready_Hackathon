@@ -24,7 +24,7 @@ export default function KioskCameraView({
               cameraActive ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
             }`}
           >
-            {cameraActive ? <><CameraOff className="w-3.5 h-3.5" /> Stop</> : <><Camera className="w-3.5 h-3.5" /> Start Webcam</>}
+            {cameraActive ? <><CameraOff className="w-3.5 h-3.5" /> Stop Camera</> : <><Camera className="w-3.5 h-3.5" /> Start Webcam</>}
           </button>
         </div>
       </div>
@@ -34,7 +34,27 @@ export default function KioskCameraView({
         greenFlash ? 'border-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.5)]' :
         scanResult?.status === 'REJECTED' ? 'border-rose-500 shadow-[0_0_40px_rgba(239,68,68,0.5)]' : 'border-sky-500/20'
       }`}>
-        <video ref={videoRef} playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
+        {/* Live Video Feed */}
+        <video 
+          ref={videoRef} 
+          autoPlay 
+          playsInline 
+          muted 
+          className={`w-full h-full object-cover transform -scale-x-100 ${cameraActive ? 'block' : 'hidden'}`} 
+        />
+
+        {/* Placeholder when camera is stopped */}
+        {!cameraActive && (
+          <div className="text-center space-y-3 p-6">
+            <div className="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center mx-auto text-sky-400">
+              <Camera className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-300">Biometric Webcam Off</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Click "Start Webcam" or use Face Simulation below to scan student ID cards.</p>
+            </div>
+          </div>
+        )}
 
         {/* Live Detected Face Box */}
         {(faceDetected || manualFaceToggle) && (

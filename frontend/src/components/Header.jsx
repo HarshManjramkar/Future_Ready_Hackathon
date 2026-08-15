@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Zap, Building2, RefreshCw } from 'lucide-react';
+import { Search, Zap, Building2, RefreshCw, Sparkles } from 'lucide-react';
 
 export default function Header({
   title,
@@ -8,7 +8,8 @@ export default function Header({
   onTriggerLeave,
   onTriggerVlm,
   onTriggerMassAbsence,
-  onResetDemo
+  onResetDemo,
+  onTriggerTour
 }) {
   return (
     <div className="flex flex-col sticky top-0 z-30 transition-all duration-300"
@@ -27,6 +28,15 @@ export default function Header({
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Guided Tour Launcher Button */}
+          <button
+            onClick={onTriggerTour}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Start Guided Tour</span>
+          </button>
+
           {/* CMD+K Search */}
           <button
             onClick={onSearchClick}
@@ -42,7 +52,6 @@ export default function Header({
               ⌘K
             </kbd>
           </button>
-
         </div>
       </header>
 

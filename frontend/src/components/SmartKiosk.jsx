@@ -14,7 +14,7 @@ export default function SmartKiosk() {
   const [students, setStudents] = useState([]);
   const [recentLogs, setRecentLogs] = useState([]);
   const [viewCardModal, setViewCardModal] = useState(null);
-  const [engineType, setEngineType] = useState('Google MediaPipe AI');
+  const [engineType, setEngineType] = useState('Edge Computer Vision AI');
   
   const videoRef = useRef(null);
 
@@ -22,6 +22,14 @@ export default function SmartKiosk() {
     fetchStudents();
     return () => stopCamera();
   }, []);
+
+  // Bind video stream to <video> ref when camera is activated
+  useEffect(() => {
+    if (cameraActive && mediaStream && videoRef.current) {
+      videoRef.current.srcObject = mediaStream;
+      videoRef.current.play().catch(e => console.warn("Video play error:", e));
+    }
+  }, [cameraActive, mediaStream]);
 
   const fetchStudents = async () => {
     try {
@@ -35,13 +43,14 @@ export default function SmartKiosk() {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setMediaStream(stream);
       setCameraActive(true);
-      if (videoRef.current) videoRef.current.srcObject = stream;
+      setFaceDetected(true);
     } catch (err) {
-      console.warn("Webcam access declined, using Edge CV simulation:", err);
+      console.warn("Webcam access declined or restricted, enabling simulation mode:", err);
       setCameraActive(true);
+      setFaceDetected(true);
     }
   };
 
