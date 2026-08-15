@@ -1,460 +1,487 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
 import confetti from 'canvas-confetti';
-import { 
-  Camera, ShieldCheck, QrCode, Sparkles, CheckCircle2, 
-  Clock, User, Check, CreditCard, ChevronRight, Fingerprint
-} from 'lucide-react';
+import { Camera, QrCode, CheckCircle2, Check, CreditCard, AlertTriangle, Loader2 } from 'lucide-react';
 import StudentIdCardModal from './StudentIdCardModal';
 
+// ─── face-api.js model URL (tiny face detector, ~190KB) ─────────────────────
+const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+const CIRCUMFERENCE = 2 * Math.PI * 54; // r=54 circle
+
 export default function SmartKiosk() {
-  const [cameraStatus, setCameraStatus] = useState('STANDBY'); // STANDBY, INITIALIZING, ACTIVE
-  const [cameraActive, setCameraActive] = useState(false);
-  const [step, setStep] = useState(1); // 1: ID Scan, 2: Face Scrutiny, 3: Success Reveal
-  const [scannedId, setScannedId] = useState(null);
-  const [matchedStudent, setMatchedStudent] = useState(null);
-  const [scrutinyProgress, setScrutinyProgress] = useState(0);
-  const [students, setStudents] = useState([]);
-  const [recentLogs, setRecentLogs] = useState([]);
+  const [cameraStatus, setCameraStatus]   = useState('STANDBY');
+  const [modelStatus, setModelStatus]     = useState('loading');
+  const [step, setStep]                   = useState(1);
+  const [faceProgress, setFaceProgress]   = useState(0);   // 0–100
+  const [faceDetected, setFaceDetected]   = useState(false);
+  const [students, setStudents]           = useState([]);
+  const [recentLogs, setRecentLogs]       = useState([]);
   const [isIdModalOpen, setIsIdModalOpen] = useState(false);
 
-  const html5QrCodeRef = useRef(null);
-  const isProcessingRef = useRef(false);
-  const lastScannedCodeRef = useRef(null);
-  const lastScannedTimeRef = useRef(0);
+  const videoRef       = useRef(null);
+  const streamRef      = useRef(null);
+  const qrDetRef       = useRef(null);
+  const qrRafRef       = useRef(null);
+  const faceRafRef     = useRef(null);
+  const studentsRef    = useRef([]);
+  const isProcessing   = useRef(false);
+  const lastScan       = useRef({ code: null, time: 0 });
+  const studentRef     = useRef(null);
+  const cleanIdRef     = useRef(null);
+  const consecutiveRef = useRef(0);
+  const faceApiReady   = useRef(false);
+  const REQUIRED       = 15;
+
+  useEffect(() => { studentsRef.current = students; }, [students]);
 
   useEffect(() => {
     fetchStudents();
+    if (!('BarcodeDetector' in window)) { setCameraStatus('UNSUPPORTED'); return; }
+    qrDetRef.current = new BarcodeDetector({ formats: ['qr_code'] });
 
-    // Automatically stop camera if they switch browser tabs
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopRealCamera();
-        setCameraStatus('STANDBY');
+    // Load face-api TinyFaceDetector weights
+    (async () => {
+      try {
+        if (!window.faceapi) throw new Error('face-api.js not in window');
+        await window.faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        faceApiReady.current = true;
+        setModelStatus('ready');
+      } catch (e) {
+        console.error('[FaceDetect]', e);
+        setModelStatus('failed');
       }
-    };
-    
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      stopRealCamera();
-    };
+    })();
+
+    const onHide = () => { if (document.hidden) _stopCamera(); };
+    document.addEventListener('visibilitychange', onHide);
+    _startCamera();
+    return () => { document.removeEventListener('visibilitychange', onHide); _stopCamera(); };
   }, []);
 
-  const handlePowerOn = () => {
-    setCameraStatus('INITIALIZING');
-    // Fake a 1.5s boot up animation
-    setTimeout(() => {
-      startRealCamera();
-    }, 1500);
+  const _startCamera = async () => {
+    if (streamRef.current) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      const v = videoRef.current;
+      if (!v) { stream.getTracks().forEach(t => t.stop()); return; }
+      v.srcObject = stream;
+      v.onloadedmetadata = async () => {
+        try { await v.play(); setCameraStatus('ACTIVE'); _startQrLoop(); }
+        catch (e) { if (e.name !== 'AbortError') console.warn(e); }
+      };
+    } catch (e) { console.error(e); setCameraStatus('STANDBY'); }
+  };
+
+  const _stopCamera = () => {
+    [qrRafRef, faceRafRef].forEach(r => { if (r.current) { cancelAnimationFrame(r.current); r.current = null; } });
+    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+    if (videoRef.current) { videoRef.current.onloadedmetadata = null; videoRef.current.srcObject = null; }
+    setCameraStatus('STANDBY');
+  };
+
+  const _startQrLoop = () => {
+    let last = 0;
+    const loop = async (ts) => {
+      qrRafRef.current = requestAnimationFrame(loop);
+      if (ts - last < 120 || isProcessing.current) return;
+      last = ts;
+      const v = videoRef.current;
+      if (!v || !qrDetRef.current || (v.readyState ?? 0) < 2) return;
+      try {
+        const hits = await qrDetRef.current.detect(v);
+        if (hits.length) _handleQr(hits[0].rawValue);
+      } catch (_) {}
+    };
+    qrRafRef.current = requestAnimationFrame(loop);
+  };
+
+  const _startFaceLoop = (cid) => {
+    consecutiveRef.current = 0;
+    setFaceProgress(0);
+    setFaceDetected(false);
+    let last = 0;
+
+    const loop = async (ts) => {
+      faceRafRef.current = requestAnimationFrame(loop);
+      if (ts - last < 100) return;
+      last = ts;
+      const v = videoRef.current;
+      if (!v || (v.readyState ?? 0) < 2) return;
+      if (!faceApiReady.current || !window.faceapi) return;
+
+      let hasFace = false;
+      try {
+        // Increased inputSize from 224 to 416 for much better full-frame accuracy
+        const result = await window.faceapi.detectSingleFace(
+          v, new window.faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 })
+        );
+        hasFace = !!result;
+      } catch { return; }
+
+      if (hasFace) {
+        consecutiveRef.current = Math.min(REQUIRED, consecutiveRef.current + 1);
+        const pct = Math.round((consecutiveRef.current / REQUIRED) * 100);
+        setFaceProgress(pct);
+        setFaceDetected(true);
+        if (consecutiveRef.current >= REQUIRED) {
+          cancelAnimationFrame(faceRafRef.current); faceRafRef.current = null;
+          setFaceProgress(100);
+          setTimeout(() => _commitAttendance(cid), 600);
+        }
+      } else {
+        consecutiveRef.current = Math.max(0, consecutiveRef.current - 2);
+        const pct = Math.round((consecutiveRef.current / REQUIRED) * 100);
+        setFaceProgress(pct);
+        if (consecutiveRef.current === 0) setFaceDetected(false);
+      }
+    };
+    faceRafRef.current = requestAnimationFrame(loop);
+  };
+
+  const _handleQr = (raw) => {
+    if (!studentsRef.current.length || isProcessing.current) return;
+    const now = Date.now();
+    if (lastScan.current.code === raw && now - lastScan.current.time < 4000) return;
+    lastScan.current = { code: raw, time: now };
+
+    let cid = raw.trim();
+    if (cid.startsWith('{')) { try { cid = String(JSON.parse(cid).id || cid); } catch (_) {} }
+    cid = cid.replace(/^(STU|EDU)-?/i, '').split('-')[0].trim();
+
+    const student = studentsRef.current.find(s =>
+      [s.id, s.student_id, s.roll_no, s.qr_code].map(String).includes(cid) ||
+      String(s.qr_token) === raw.trim()
+    );
+    if (!student) { console.warn(`Unknown QR: ${raw} → ${cid}`); return; }
+
+    isProcessing.current = true;
+    cleanIdRef.current = cid;
+    studentRef.current = student;
+    if (qrRafRef.current) { cancelAnimationFrame(qrRafRef.current); qrRafRef.current = null; }
+
+    fetch('/api/kiosk/verify-id', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ qr_code: cid }),
+    }).catch(() => {});
+
+    setStep(2);
+    _startFaceLoop(cid);
+  };
+
+  const _commitAttendance = async (cid) => {
+    const s = studentRef.current;
+    try {
+      const res  = await fetch('/api/kiosk/attendance', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qr_code: cid, face_detected: true }),
+      });
+      const data = await res.json();
+      if (data.status === 'SUCCESS' || data.student) {
+        setStep(3);
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#34d399', '#fff'] });
+        const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setRecentLogs(prev => [{ name: s?.name, id: cid, time: t, avatar: s?.avatar }, ...prev.slice(0, 4)]);
+        fetchStudents();
+        setTimeout(_reset, 4000);
+      } else _reset();
+    } catch { _reset(); }
+  };
+
+  const _reset = () => {
+    setStep(1); setFaceProgress(0); setFaceDetected(false);
+    consecutiveRef.current = 0;
+    studentRef.current = null; cleanIdRef.current = null;
+    isProcessing.current = false; lastScan.current = { code: null, time: 0 };
+    if (cameraStatus === 'ACTIVE') setTimeout(_startQrLoop, 400);
   };
 
   const fetchStudents = async () => {
-    try {
-      const res = await fetch('/api/students');
-      const data = await res.json();
-      setStudents(data.students || []);
-    } catch (err) {
-      console.error("Error fetching students:", err);
-    }
+    try { const d = await fetch('/api/students').then(r => r.json()); setStudents(d.students || []); } catch (_) {}
   };
 
-  const startRealCamera = async () => {
-    try {
-      if (html5QrCodeRef.current) return;
-      const html5QrCode = new Html5Qrcode("kiosk-camera-viewport");
-      html5QrCodeRef.current = html5QrCode;
-      
-      const config = { fps: 15, qrbox: { width: 380, height: 380 } };
-      await html5QrCode.start(
-        { facingMode: "user" },
-        config,
-        (decodedText) => handleQrCodeDetected(decodedText),
-        () => {} // silent scanning loop
-      );
-      setCameraActive(true);
-      setCameraStatus('ACTIVE');
-    } catch (err) {
-      console.warn("Html5Qrcode init warning:", err);
-      setCameraActive(true);
-      setCameraStatus('ACTIVE');
-    }
-  };
-
-  const stopRealCamera = async () => {
-    if (html5QrCodeRef.current) {
-      try {
-        const state = html5QrCodeRef.current.getState();
-        // state 2 means SCANNING
-        if (state === 2) {
-          await html5QrCodeRef.current.stop();
-        }
-        html5QrCodeRef.current.clear();
-      } catch (err) {}
-      html5QrCodeRef.current = null;
-    }
-    setCameraActive(false);
-  };
-
-  const handleQrCodeDetected = (rawQrText) => {
-    // 0. Prevent scanning before students are loaded (Race condition fix)
-    if (students.length === 0) return;
-
-    // 1. Debounce and Lock
-    if (isProcessingRef.current) return;
-    
-    const now = Date.now();
-    // Ignore rapid consecutive scans of the same code within 3 seconds
-    if (lastScannedCodeRef.current === rawQrText && (now - lastScannedTimeRef.current < 3000)) {
-      return;
-    }
-
-    lastScannedCodeRef.current = rawQrText;
-    lastScannedTimeRef.current = now;
-
-    // 2. Strict ID Parsing
-    let cleanId = String(rawQrText).trim();
-    if (cleanId.startsWith('{')) {
-      try {
-        const jsonObj = JSON.parse(cleanId);
-        cleanId = jsonObj.id || jsonObj.student_id || jsonObj.roll_no || jsonObj.qr_code || cleanId;
-      } catch (e) {}
-    }
-
-    cleanId = String(cleanId)
-      .replace('STU-', '')
-      .replace('EDU-', '')
-      .replace('{"id":"', '')
-      .split('"')[0]
-      .split('-')[0]
-      .trim();
-
-    // 3. Strict Equality Match (No substring .includes bugs)
-    const foundStudent = students.find(s => 
-      String(s.id) === cleanId || 
-      String(s.student_id) === cleanId || 
-      String(s.roll_no) === cleanId || 
-      String(s.qr_code) === cleanId ||
-      String(s.qr_token) === cleanId ||
-      String(s.qr_token) === String(rawQrText).trim()
-    );
-
-    if (!foundStudent) {
-      console.warn(`Unregistered QR code scanned: ${rawQrText}`);
-      return;
-    }
-
-    // 4. Lock & Transition to Step 2
-    isProcessingRef.current = true;
-    setScannedId(cleanId);
-    setMatchedStudent(foundStudent);
-    setStep(2);
-    runFacialScrutiny(cleanId, foundStudent);
-  };
-
-  const runFacialScrutiny = (studentId, studentObj) => {
-    setScrutinyProgress(0);
-    let current = 0;
-    const interval = setInterval(() => {
-      current += 20;
-      setScrutinyProgress(current);
-      if (current >= 100) {
-        clearInterval(interval);
-        commitAttendanceVerification(studentId, studentObj);
-      }
-    }, 240); // Total ~1.2s scrutiny animation
-  };
-
-  const commitAttendanceVerification = async (studentId, studentObj) => {
-    try {
-      const res = await fetch('/api/kiosk/attendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qr_code: studentId, face_detected: true })
-      });
-      const data = await res.json();
-
-      if (data.status === 'SUCCESS' || data.student) {
-        setStep(3);
-        confetti({ particleCount: 120, spread: 100, origin: { y: 0.5 }, colors: ['#10b981', '#34d399', '#ffffff'] });
-        
-        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        setRecentLogs(prev => [{
-          name: studentObj.name,
-          grade: studentObj.grade || "Grade 10-A",
-          id: studentId,
-          time: timestamp,
-          avatar: studentObj.avatar
-        }, ...prev.slice(0, 4)]);
-
-        fetchStudents();
-
-        // Hold Step 3 reveal for 3 seconds then reset
-        setTimeout(() => resetKioskState(), 3000);
-      } else {
-        alert(data.message || "Verification failed.");
-        resetKioskState();
-      }
-    } catch (err) {
-      console.error("Verification error:", err);
-      resetKioskState();
-    }
-  };
-
-  const resetKioskState = () => {
-    setStep(1);
-    setScannedId(null);
-    setMatchedStudent(null);
-    setScrutinyProgress(0);
-    isProcessingRef.current = false;
-  };
-
+  const s            = studentRef.current;
   const presentCount = students.filter(s => s.attendance_status === 'PRESENT').length;
-  const totalCount = students.length || 17;
-  const attendanceRate = totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(1) : 0;
+  const totalCount   = students.length || 17;
+  const rate         = totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(1) : '0.0';
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-slate-950 font-sans flex">
-      
-      {/* FULL SCREEN CAMERA VIEWPORT */}
-      <div className="absolute inset-0 z-0 bg-slate-950">
-        <div id="kiosk-camera-viewport" className={`w-full h-full object-cover opacity-90 scale-105 transition-opacity duration-1000 ${cameraStatus === 'ACTIVE' ? 'opacity-90' : 'opacity-0'}`} />
-        
-        {/* Dynamic Vignette / Border Glow depending on Step */}
-        <div className={`absolute inset-0 pointer-events-none transition-all duration-700 ${
-          cameraStatus !== 'ACTIVE' ? 'bg-slate-950' :
-          step === 3 ? 'shadow-[inset_0_0_150px_rgba(16,185,129,0.4)]' :
-          step === 2 ? 'shadow-[inset_0_0_150px_rgba(56,189,248,0.3)]' : 'shadow-[inset_0_0_200px_rgba(0,0,0,0.9)]'
-        }`} />
-      </div>
+    <div className="relative w-full h-screen overflow-hidden bg-slate-950 font-sans select-none">
 
-      {/* OVERLAY: Header & Controls */}
-      <div className="absolute inset-0 p-4 md:p-8 z-10 flex flex-col md:flex-row items-start justify-between pointer-events-none overflow-hidden">
-        
-        {/* Left Side: Title & Steps */}
-        <div className="space-y-4 md:space-y-6 w-full md:w-auto">
-          <div className="glass-panel p-5 rounded-3xl border border-white/10 bg-slate-950/40 backdrop-blur-xl shadow-2xl pointer-events-auto">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="flex h-3 w-3 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-              </span>
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Live Hardware Feed</span>
+      {/* ── Raw video ── */}
+      <video ref={videoRef} muted playsInline
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${cameraStatus === 'ACTIVE' ? 'opacity-90' : 'opacity-0'}`}
+        style={{ zIndex: 0 }} />
+
+      {/* ── Ambient layer — tints whole frame on step change ── */}
+      <div className="absolute inset-0 pointer-events-none transition-all duration-700"
+        style={{
+          zIndex: 1,
+          background:
+            step === 3 ? 'radial-gradient(ellipse 100% 80% at 50% 50%, rgba(16,185,129,0.22) 0%, transparent 70%)' :
+            step === 2 ? 'radial-gradient(ellipse 100% 80% at 50% 50%, rgba(56,189,248,0.08) 0%, transparent 70%)' :
+            'radial-gradient(ellipse 80% 80% at 50% 110%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)',
+        }} />
+
+      {/* ── Central overlay — all step UX lives here ── */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 10 }}>
+
+        {/* ─── STEP 1: QR corner brackets ─── */}
+        <div className="absolute transition-all duration-500"
+          style={{
+            transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
+            opacity: step === 1 ? 1 : 0,
+            transform: step === 1 ? 'scale(1)' : 'scale(0.9)',
+          }}>
+          <div className="relative flex items-center justify-center" style={{ width: 260, height: 260 }}>
+            {/* Corner brackets */}
+            {[['top-0 left-0','border-t border-l','rounded-tl-xl'],
+              ['top-0 right-0','border-t border-r','rounded-tr-xl'],
+              ['bottom-0 left-0','border-b border-l','rounded-bl-xl'],
+              ['bottom-0 right-0','border-b border-r','rounded-br-xl']
+            ].map(([pos, borders, radius], i) => (
+              <div key={i} className={`absolute ${pos} w-9 h-9 ${borders} ${radius} border-white/40`} />
+            ))}
+            {/* Scan laser */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute inset-x-4 h-px bg-gradient-to-r from-transparent via-emerald-400/90 to-transparent"
+                style={{ animation: 'laser 2.2s ease-in-out infinite alternate', filter: 'drop-shadow(0 0 4px #10b981)' }} />
             </div>
-            <h1 className="text-3xl font-black text-white tracking-tight font-display mb-1">EduFlow Smart Gate</h1>
-            <p className="text-sm text-slate-400 max-w-sm">
-              Present your student ID card to the lens for instant dual-factor biometric access.
+            {/* Centre icon */}
+            <QrCode className="w-10 h-10 text-white/15" strokeWidth={1} />
+          </div>
+          {/* Label */}
+          <p className="text-center mt-5 text-[10px] font-mono tracking-[0.35em] text-white/30 uppercase">
+            Hold ID card QR here
+          </p>
+        </div>
+
+        {/* ─── STEP 2: Apple Face ID circle ─── */}
+        <div className="absolute flex flex-col items-center gap-0 transition-all duration-600"
+          style={{
+            transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
+            opacity: step === 2 ? 1 : 0,
+            transform: step === 2 ? 'scale(1) translateY(0)' : step > 2 ? 'scale(0.85) translateY(-30px)' : 'scale(1.1) translateY(20px)',
+          }}>
+
+          {/* Ambient subtle white glow to create focus on face */}
+          <div className="absolute inset-0 w-[400px] h-[400px] bg-white opacity-5 rounded-full blur-[60px] pointer-events-none -z-10"
+               style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', transition: 'opacity 0.6s' }} />
+
+          {/* Face ID circle via SVG */}
+          <div className="relative" style={{ width: 400, height: 400 }}>
+            <svg width="400" height="400" viewBox="0 0 400 400" className="absolute inset-0"
+              style={{ transform: 'rotate(-90deg)' }}>
+              {/* Track circle */}
+              <circle cx="200" cy="200" r="180"
+                fill="none"
+                stroke="rgba(255,255,255,0.08)"
+                strokeWidth="2"
+              />
+              {/* Progress arc */}
+              <circle cx="200" cy="200" r="180"
+                fill="none"
+                stroke={faceDetected ? '#38bdf8' : 'rgba(255,255,255,0.18)'}
+                strokeWidth={faceDetected ? '3.5' : '1.5'}
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 180}`}
+                strokeDashoffset={`${2 * Math.PI * 180 * (1 - faceProgress / 100)}`}
+                style={{
+                  transition: 'stroke-dashoffset 0.12s linear, stroke 0.4s ease, stroke-width 0.4s ease',
+                  filter: faceDetected && faceProgress > 10 ? 'drop-shadow(0 0 8px rgba(56,189,248,0.8))' : 'none',
+                }}
+              />
+              {/* 4 subtle dots at cardinal points — very Face ID */}
+              {[0, 90, 180, 270].map(deg => {
+                const rad = (deg * Math.PI) / 180;
+                return (
+                  <circle key={deg}
+                    cx={200 + 180 * Math.sin(rad)}
+                    cy={200 - 180 * Math.cos(rad)}
+                    r="4"
+                    fill={faceDetected ? '#38bdf8' : 'rgba(255,255,255,0.25)'}
+                    style={{ transition: 'fill 0.4s ease' }}
+                  />
+                );
+              })}
+            </svg>
+
+            {/* Face silhouette placeholder when no face */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {/* Subtle face outline — visible only when not detected */}
+              <svg width="150" height="170" viewBox="0 0 80 90"
+                style={{ opacity: faceDetected ? 0 : 0.10, transition: 'opacity 0.5s ease' }}>
+                <ellipse cx="40" cy="38" rx="26" ry="30" fill="none" stroke="white" strokeWidth="1" />
+                <ellipse cx="40" cy="80" rx="34" ry="16" fill="none" stroke="white" strokeWidth="1" />
+              </svg>
+
+              {/* Progress percentage — shows only when face detected */}
+              {faceDetected && faceProgress > 0 && (
+                <div className="absolute flex flex-col items-center"
+                  style={{ animation: 'fadeIn 0.3s ease' }}>
+                  <span className="text-5xl font-black text-white tabular-nums" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+                    {faceProgress}<span className="text-2xl text-white/50">%</span>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Student name — subtle, below circle */}
+          <div className="flex flex-col items-center mt-6 gap-1.5"
+            style={{ opacity: step === 2 ? 1 : 0, transition: 'opacity 0.5s ease 0.2s' }}>
+            <p className="text-white/90 font-semibold text-sm tracking-wide">{s?.name}</p>
+            <p className="text-white/30 font-mono text-[9px] tracking-[0.25em] uppercase">
+              {faceDetected ? 'Hold still…' : modelStatus === 'loading' ? 'Preparing…' : 'Move closer'}
             </p>
           </div>
-
-          {/* Stepper HUD */}
-          <div className="flex flex-col gap-3 pointer-events-auto w-80">
-            <div className={`p-4 rounded-2xl border transition-all duration-300 flex items-center gap-4 backdrop-blur-md ${
-              step === 1 ? 'bg-white/10 border-white/30 shadow-[0_0_30px_rgba(255,255,255,0.1)]' : 'bg-black/40 border-white/5 opacity-50'
-            }`}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-colors ${
-                step > 1 ? 'bg-emerald-500 text-slate-950' : 'bg-white/20 text-white'
-              }`}>
-                {step > 1 ? <Check className="w-5 h-5" /> : "1"}
-              </div>
-              <div>
-                <h4 className={`text-sm font-bold uppercase tracking-wider ${step === 1 ? 'text-white' : 'text-slate-400'}`}>ID Card Scan</h4>
-                <p className="text-xs text-slate-400">Locating QR code in frame</p>
-              </div>
-            </div>
-
-            <div className={`p-4 rounded-2xl border transition-all duration-300 flex items-center gap-4 backdrop-blur-md ${
-              step === 2 ? 'bg-sky-500/20 border-sky-400/50 shadow-[0_0_30px_rgba(56,189,248,0.2)]' : 
-              step > 2 ? 'bg-black/40 border-white/5 opacity-50' : 'bg-black/40 border-white/5 opacity-30'
-            }`}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-colors ${
-                step > 2 ? 'bg-emerald-500 text-slate-950' : step === 2 ? 'bg-sky-400 text-slate-950 animate-pulse' : 'bg-white/10 text-slate-500'
-              }`}>
-                {step > 2 ? <Check className="w-5 h-5" /> : "2"}
-              </div>
-              <div>
-                <h4 className={`text-sm font-bold uppercase tracking-wider ${step === 2 ? 'text-sky-100' : 'text-slate-500'}`}>Facial Scrutiny</h4>
-                <p className={`text-xs ${step === 2 ? 'text-sky-200' : 'text-slate-600'}`}>Liveness & Identity Check</p>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right Side: Tools & Telemetry */}
-        <div className="flex flex-col items-end gap-3 md:gap-4 pointer-events-auto mt-4 md:mt-0 w-full md:w-auto">
-          <button
-            onClick={() => setIsIdModalOpen(true)}
-            className="px-4 py-2.5 md:px-5 md:py-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs md:text-sm flex items-center gap-2 md:gap-3 shadow-2xl backdrop-blur-lg transition hover:scale-105"
-          >
-            <CreditCard className="w-5 h-5" />
-            <span>Generate Dummy ID Cards</span>
-          </button>
-
-          <div className="glass-panel p-5 rounded-3xl border border-white/10 bg-slate-950/50 backdrop-blur-xl shadow-2xl flex items-center gap-6">
-            <div className="text-right">
-              <span className="text-[10px] font-mono text-emerald-400/80 uppercase tracking-widest block mb-1">Checked In</span>
-              <span className="text-2xl font-black text-white font-display">{presentCount} <span className="text-slate-500 text-base">/ {totalCount}</span></span>
-            </div>
-            <div className="h-10 w-px bg-white/10" />
-            <div className="text-right">
-              <span className="text-[10px] font-mono text-sky-400/80 uppercase tracking-widest block mb-1">Arrival Rate</span>
-              <span className="text-2xl font-black text-white font-display">{attendanceRate}%</span>
+        {/* ─── STEP 3: Success — full-frame subtle ─── */}
+        <div className="absolute flex flex-col items-center gap-4 transition-all duration-600"
+          style={{
+            transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
+            opacity: step === 3 ? 1 : 0,
+            transform: step === 3 ? 'scale(1)' : 'scale(0.85)',
+          }}>
+          {/* Big checkmark in a circle */}
+          <div className="relative w-28 h-28">
+            <svg width="112" height="112" viewBox="0 0 112 112" className="absolute inset-0"
+              style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="56" cy="56" r="52" fill="none" stroke="rgba(16,185,129,0.3)" strokeWidth="2" />
+              <circle cx="56" cy="56" r="52" fill="none" stroke="#10b981" strokeWidth="2.5"
+                strokeLinecap="round"
+                style={{ filter: 'drop-shadow(0 0 8px rgba(16,185,129,0.8))' }} />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Check className="w-10 h-10 text-emerald-400" strokeWidth={2.5} />
             </div>
           </div>
-          
-          {/* Recent Scans Log (Floating) */}
-          {recentLogs.length > 0 && (
-            <div className="mt-4 w-72 glass-panel p-4 rounded-3xl border border-white/10 bg-slate-950/40 backdrop-blur-xl shadow-2xl space-y-3">
-              <h4 className="text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2">Recent Access Logs</h4>
-              {recentLogs.map((log, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-white/5 p-2.5 rounded-2xl border border-white/5 animate-fade-up">
-                  <img src={log.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} alt="" className="w-8 h-8 rounded-full object-cover border border-white/10" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-white truncate">{log.name}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">ID: {log.id}</p>
-                  </div>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded">{log.time}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-2xl font-black text-white tracking-tight">Welcome, {s?.name?.split(' ')[0]}</p>
+            <p className="text-emerald-400/70 font-mono text-[10px] tracking-[0.25em] uppercase">Attendance marked · {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+          </div>
         </div>
       </div>
 
-      {/* STANDBY & INITIALIZING OVERLAYS */}
-      {cameraStatus !== 'ACTIVE' && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md">
-          {cameraStatus === 'STANDBY' ? (
-            <div className="animate-in zoom-in fade-in duration-500 flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center mb-8 shadow-2xl">
-                <Camera className="w-10 h-10 text-slate-500" />
+      {/* ── HUD: top-left ── */}
+      <div className="absolute top-5 left-5 md:top-7 md:left-7 pointer-events-auto" style={{ zIndex: 20 }}>
+        <div className="p-3.5 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 shadow-xl">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+            </span>
+            <span className="text-[8px] font-mono uppercase tracking-[0.3em] text-emerald-400/80">Live</span>
+          </div>
+          <h1 className="text-base font-black text-white tracking-tight">EduFlow Gate</h1>
+          {/* Step breadcrumb */}
+          <div className="flex items-center gap-1.5 mt-2.5">
+            {[
+              { n: 1, label: 'ID' },
+              { n: 2, label: 'Face' },
+            ].map(({ n, label }, i) => (
+              <React.Fragment key={n}>
+                <div className="flex items-center gap-1">
+                  <div className={`w-4 h-4 rounded-full text-[7px] font-black flex items-center justify-center transition-all duration-500 ${
+                    step > n ? 'bg-emerald-500 text-slate-950' :
+                    step === n ? 'bg-white text-slate-950' :
+                    'bg-white/10 text-slate-500'
+                  }`}>
+                    {step > n ? <Check className="w-2 h-2" strokeWidth={3} /> : n}
+                  </div>
+                  <span className={`text-[8px] font-medium transition-colors duration-500 ${step === n ? 'text-white' : 'text-slate-500'}`}>{label}</span>
+                </div>
+                {i < 1 && <div className={`w-3 h-px transition-all duration-700 ${step > n ? 'bg-emerald-500' : 'bg-white/12'}`} />}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── HUD: top-right ── */}
+      <div className="absolute top-5 right-5 md:top-7 md:right-7 flex flex-col items-end gap-2.5 pointer-events-auto" style={{ zIndex: 20 }}>
+        <button onClick={() => setIsIdModalOpen(true)}
+          className="px-3 py-1.5 rounded-xl bg-white/6 hover:bg-white/12 text-white/60 border border-white/10 font-semibold text-[10px] flex items-center gap-1.5 backdrop-blur-lg transition-all hover:text-white">
+          <CreditCard className="w-3 h-3" /><span>ID Cards</span>
+        </button>
+
+        <div className="px-4 py-3 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 shadow-xl flex items-center gap-3.5">
+          <div className="text-right">
+            <span className="text-[7px] font-mono text-slate-500 uppercase tracking-[0.2em] block">Present</span>
+            <span className="text-xl font-black text-white">{presentCount}<span className="text-slate-500 text-[10px]">/{totalCount}</span></span>
+          </div>
+          <div className="w-px h-6 bg-white/8" />
+          <div className="text-right">
+            <span className="text-[7px] font-mono text-slate-500 uppercase tracking-[0.2em] block">Rate</span>
+            <span className="text-xl font-black text-white">{rate}%</span>
+          </div>
+        </div>
+
+        {/* Recent log — minimal */}
+        {recentLogs.length > 0 && (
+          <div className="w-52 space-y-1">
+            {recentLogs.slice(0, 3).map((log, i) => (
+              <div key={i} className="flex items-center gap-2 bg-black/35 backdrop-blur-xl px-2.5 py-1.5 rounded-xl border border-white/6">
+                <img src={log.avatar} alt="" className="w-5 h-5 rounded-full object-cover shrink-0" />
+                <p className="text-[9px] font-medium text-white/70 truncate flex-1">{log.name}</p>
+                <span className="text-[8px] font-mono text-emerald-400/70 shrink-0">{log.time}</span>
               </div>
-              <h2 className="text-3xl font-black text-white font-display mb-3">System on Standby</h2>
-              <p className="text-slate-400 max-w-md mb-10 text-sm">
-                The smart gate biometric scanners are currently inactive. Power on the system to begin student verification.
-              </p>
-              <button 
-                onClick={handlePowerOn}
-                className="px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black tracking-widest uppercase transition-all hover:scale-105 shadow-[0_0_40px_rgba(16,185,129,0.4)] flex items-center gap-3"
-              >
-                <Sparkles className="w-5 h-5" />
-                Initialize Scanners
-              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Model loading / failed indicator (very subtle, bottom center) ── */}
+      {step === 2 && modelStatus !== 'ready' && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 pointer-events-none" style={{ zIndex: 20 }}>
+          {modelStatus === 'loading'
+            ? <><Loader2 className="w-3 h-3 text-white/30 animate-spin" /><span className="text-[8px] font-mono text-white/25 tracking-widest uppercase">Loading model</span></>
+            : <><AlertTriangle className="w-3 h-3 text-amber-400/50" /><span className="text-[8px] font-mono text-white/25 tracking-widest uppercase">Face detection unavailable</span></>
+          }
+        </div>
+      )}
+
+      {/* ── Standby / Unsupported ── */}
+      {cameraStatus !== 'ACTIVE' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md" style={{ zIndex: 30 }}>
+          {cameraStatus === 'UNSUPPORTED' ? (
+            <div className="flex flex-col items-center text-center max-w-xs gap-3">
+              <AlertTriangle className="w-8 h-8 text-amber-400" />
+              <p className="text-white font-black text-lg">Open in Chrome or Edge</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center text-center animate-pulse">
-              <div className="relative w-32 h-32 mb-8">
-                <div className="absolute inset-0 border-4 border-sky-500/20 border-t-sky-400 rounded-full animate-spin" />
-                <div className="absolute inset-2 border-4 border-emerald-500/20 border-b-emerald-400 rounded-full animate-[spin_2s_reverse_infinite]" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Fingerprint className="w-10 h-10 text-sky-400" />
-                </div>
+            <div className="flex flex-col items-center gap-6 text-center">
+              <Camera className="w-8 h-8 text-white/20" />
+              <div>
+                <p className="text-white font-black text-xl mb-1">Scanner Paused</p>
+                <p className="text-white/30 text-sm">Left this tab</p>
               </div>
-              <h2 className="text-xl font-bold text-sky-400 font-mono tracking-widest uppercase">
-                Booting Biometrics...
-              </h2>
-              <p className="text-slate-500 text-sm mt-2 font-mono">Calibrating lenses and neural engines</p>
+              <button onClick={_startCamera}
+                className="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/18 text-white font-semibold text-sm border border-white/12 transition-all flex items-center gap-2">
+                <Camera className="w-3.5 h-3.5" /> Resume
+              </button>
             </div>
           )}
         </div>
       )}
 
-      {/* CENTRAL HUD CROSSHAIRS & ANIMATIONS */}
-      <div className="absolute inset-0 z-0 pointer-events-none flex flex-col items-center justify-center">
-        
-        {/* Step 1 HUD: Massive Reticle */}
-        {step === 1 && cameraStatus === 'ACTIVE' && (
-          <div className="relative animate-in zoom-in duration-500">
-            {/* Corner Brackets */}
-            <div className="absolute -inset-8 border-2 border-white/20 rounded-3xl" style={{ clipPath: 'polygon(0 0, 20% 0, 0 20%, 0 0, 80% 0, 100% 0, 100% 20%, 80% 0, 100% 80%, 100% 100%, 80% 100%, 100% 80%, 0 80%, 0 100%, 20% 100%, 0 80%)' }} />
-            
-            <div className="w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-3xl border border-emerald-500/30 relative flex flex-col items-center justify-center bg-emerald-500/5 backdrop-blur-[2px]">
-              {/* Scanning Laser Line */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-emerald-400 shadow-[0_0_20px_#10b981] animate-[introWipeUp_2s_ease-in-out_infinite_alternate]" style={{ animationName: 'scanLaser', animationDuration: '2.5s', animationIterationCount: 'infinite', animationDirection: 'alternate' }} />
-              
-              <QrCode className="w-24 h-24 text-emerald-400/50 animate-pulse" />
-              <p className="mt-8 text-sm font-mono font-bold tracking-widest text-emerald-400 bg-emerald-950/80 px-4 py-2 rounded-full border border-emerald-500/30">
-                ALIGN QR CODE HERE
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2 HUD: Facial Scrutiny Liveness */}
-        {step === 2 && matchedStudent && (
-          <div className="relative w-[360px] animate-in zoom-in-110 fade-in duration-300">
-            <div className="absolute -inset-10 bg-sky-500/20 rounded-[3rem] blur-2xl animate-pulse" />
-            <div className="relative bg-slate-950/80 backdrop-blur-2xl border-2 border-sky-400/50 rounded-3xl p-8 flex flex-col items-center shadow-[0_0_80px_rgba(56,189,248,0.4)]">
-              
-              <div className="absolute -top-4 bg-sky-500 text-slate-950 text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full shadow-lg flex items-center gap-2">
-                <Fingerprint className="w-3 h-3 animate-spin" />
-                <span>Biometric Scrutiny Active</span>
-              </div>
-
-              <div className="relative w-32 h-32 mb-6 mt-4">
-                <div className="absolute inset-0 border-4 border-sky-400/30 border-t-sky-400 rounded-full animate-spin" />
-                <img src={matchedStudent.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} alt="" className="w-full h-full object-cover rounded-full p-2" />
-              </div>
-
-              <h3 className="text-xl font-black text-white font-display text-center">{matchedStudent.name || matchedStudent.full_name}</h3>
-              <p className="text-sky-300 font-mono text-xs mt-1 mb-6 text-center">ID: {matchedStudent.id}</p>
-
-              <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-sky-500/20">
-                <div 
-                  className="bg-sky-400 h-full transition-all duration-200 ease-out shadow-[0_0_10px_#38bdf8]"
-                  style={{ width: `${scrutinyProgress}%` }}
-                />
-              </div>
-              <p className="text-[10px] text-sky-400 font-mono mt-3 text-center uppercase tracking-widest">
-                Analyzing Facial Topology... {scrutinyProgress}%
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3 HUD: Verified Success */}
-        {step === 3 && matchedStudent && (
-          <div className="relative animate-in zoom-in-90 fade-in duration-300 transform scale-110">
-            <div className="absolute -inset-16 bg-emerald-500/20 rounded-full blur-3xl" />
-            <div className="relative bg-emerald-500 border border-emerald-400 rounded-3xl p-10 flex flex-col items-center shadow-[0_0_100px_rgba(16,185,129,0.5)] text-slate-950 text-center max-w-md">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl mb-6 transform hover:scale-110 transition duration-500">
-                <CheckCircle2 className="w-14 h-14 text-emerald-500" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-950/10 px-3 py-1 rounded-full mb-3">
-                Access Granted
-              </span>
-              <h2 className="text-4xl font-black tracking-tight font-display mb-2">Verified!</h2>
-              <p className="text-emerald-900 font-bold text-lg mb-1">{matchedStudent.name}</p>
-              <p className="text-emerald-800 font-mono text-sm opacity-80">ID: {matchedStudent.id}</p>
-            </div>
-          </div>
-        )}
-
-      </div>
-
       <style>{`
-        @keyframes scanLaser {
-          0% { transform: translateY(0); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateY(280px); opacity: 0; }
+        @keyframes laser {
+          0%   { top: 0; opacity: 0; }
+          5%   { opacity: 1; }
+          95%  { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
         }
-        @media (min-width: 768px) {
-          @keyframes scanLaser {
-            0% { transform: translateY(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(380px); opacity: 0; }
-          }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to   { opacity: 1; transform: scale(1); }
         }
       `}</style>
 
-      {/* Modals */}
-      <StudentIdCardModal
-        isOpen={isIdModalOpen}
-        onClose={() => setIsIdModalOpen(false)}
-        students={students}
-      />
+      <StudentIdCardModal isOpen={isIdModalOpen} onClose={() => setIsIdModalOpen(false)} students={students} />
     </div>
   );
 }

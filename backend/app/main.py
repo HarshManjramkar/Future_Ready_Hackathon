@@ -31,6 +31,9 @@ class AttendanceScanRequest(BaseModel):
     qr_code: str
     face_detected: bool
 
+class VerifyIdRequest(BaseModel):
+    qr_code: str
+
 class VerificationRequest(BaseModel):
     index: int
     student_info: Dict[str, Any]
@@ -148,10 +151,43 @@ def verify_document(req: VerificationRequest):
     ATTENDANCE_LOGS.append(new_student)
     return {"status": "SUCCESS", "message": f"Successfully admitted {new_student['name']} (ID: {new_student['id']})", "student": new_student}
 
+# ── STEP 1: QR Identity Lookup ──────────────────────────────────────────────
+@app.post("/api/kiosk/verify-id")
+def verify_student_id(req: VerifyIdRequest):
+    """Step 1 of 2-factor check-in: validate QR code, return student info.
+    Does NOT mark attendance — that happens in Step 2 after face scrutiny."""
+    raw = str(req.qr_code).split("\x00")[0].strip()
+    clean = re.sub(r'[\u200B-\u200D\uFEFF]', '', raw)
+    if clean.startswith("{"):
+        try:
+            payload = json.loads(clean)
+            clean = str(payload.get("id") or payload.get("student_id") or payload.get("roll_no") or payload.get("qr_code") or clean)
+        except Exception: pass
+    clean = clean.replace("STU-", "").replace("EDU-", "").split("-")[0].strip()
+
+    matched = next((
+        s for s in ATTENDANCE_LOGS
+        if str(s.get("id")) in [raw, clean]
+        or str(s.get("qr_code")) in [raw, clean]
+        or str(s.get("qr_token")) in [raw, clean]
+    ), None)
+
+    if not matched:
+        return {"status": "REJECTED", "message": f"QR code '{req.qr_code}' is not registered."}
+
+    # Already checked in today?
+    if matched.get("attendance_status") == "PRESENT":
+        return {"status": "ALREADY_PRESENT", "message": f"{matched['name']} is already checked in.", "student": matched}
+
+    return {"status": "ID_VERIFIED", "message": f"ID verified for {matched['name']}. Proceed to facial scrutiny.", "student": matched}
+
+
+# ── STEP 2: Face Confirmed → Mark Attendance ─────────────────────────────────
 @app.post("/api/kiosk/attendance")
 def register_attendance(scan: AttendanceScanRequest):
+    """Step 2 of 2-factor check-in: face detected, mark attendance as PRESENT."""
     if not scan.face_detected:
-        return {"status": "REJECTED", "message": "Anti-Cheat Alert: ID scanned, but no human face detected in webcam frame!", "green_flash": False}
+        return {"status": "REJECTED", "message": "Anti-Cheat Alert: No face confirmed for biometric step!", "green_flash": False}
     raw = str(scan.qr_code).split("\x00")[0].strip()
     clean = re.sub(r'[\u200B-\u200D\uFEFF]', '', raw)
     if clean.startswith("{"):
@@ -164,7 +200,7 @@ def register_attendance(scan: AttendanceScanRequest):
     if matched:
         matched["attendance_status"] = "PRESENT"
         matched["check_in_time"] = time.strftime("%I:%M %p")
-        return {"status": "SUCCESS", "message": f"Verified! Attendance marked for {matched['name']} ({matched['grade']})", "student": matched, "green_flash": True}
+        return {"status": "SUCCESS", "message": f"✓ Dual-factor verified! Attendance marked for {matched['name']} ({matched['grade']})", "student": matched, "green_flash": True}
     return {"status": "REJECTED", "message": f"Security Alert: ID QR Code (#{scan.qr_code}) is unregistered or invalid!", "green_flash": False}
 
 @app.get("/api/students")
