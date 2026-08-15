@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import StatsGrid from './StatsGrid';
 import RiskAnalysisWidget from './RiskAnalysisWidget';
-import QuickActionHub from './QuickActionHub';
 
 export default function DashboardOverview({
   setActiveTab,
@@ -63,9 +62,6 @@ export default function DashboardOverview({
 
       {/* Predictive Risk Widget */}
       <RiskAnalysisWidget riskData={riskData} setActiveTab={setActiveTab} />
-
-      {/* Quick Action Navigation Hub */}
-      <QuickActionHub setActiveTab={setActiveTab} onTriggerTour={onTriggerTour} onShowArch={onShowArch} />
     </div>
   );
 }
