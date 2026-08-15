@@ -1,9 +1,18 @@
 import React from 'react';
-import { Shield, Sparkles, Building2, ChevronRight, Lock } from 'lucide-react';
+import { Shield, Sparkles, Building2, ChevronRight, Lock, Loader2 } from 'lucide-react';
 
-export default function IntroGateAnimation({ gatesOpened, openGates, phase }) {
+export default function IntroGateAnimation({ gatesOpened, openGates, phase, onSkip }) {
   return (
     <div className={`relative w-full h-full flex items-center justify-center overflow-hidden gate-viewport ${gatesOpened ? 'gate-open' : ''}`}>
+      {/* Top Right Skip Intro Button */}
+      <button 
+        onClick={onSkip}
+        className="absolute top-6 right-6 z-40 px-4 py-2 bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-mono rounded-xl border border-slate-700/60 shadow-lg transition cursor-pointer flex items-center gap-1.5"
+      >
+        <span>Skip Intro</span>
+        <ChevronRight className="w-3.5 h-3.5 text-emerald-400" />
+      </button>
+
       {/* 3D Left School Entrance Door */}
       <div className="gate-door-left absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-r-4 border-amber-500/40 z-20 flex flex-col justify-between p-12 shadow-2xl">
         <div className="flex items-center gap-3">
@@ -54,34 +63,25 @@ export default function IntroGateAnimation({ gatesOpened, openGates, phase }) {
         </div>
       </div>
 
-      {/* Center Gate Lock & Open Button */}
-      {!gatesOpened && (
-        <div className="z-30 text-center space-y-5 max-w-md px-6 animate-in fade-in zoom-in duration-500">
-          <div className="w-20 h-20 rounded-3xl bg-amber-500/10 border-2 border-amber-500/50 flex items-center justify-center mx-auto text-amber-400 shadow-2xl animate-pulse">
-            <Building2 className="w-10 h-10" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black text-white tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-              VICTORY HIGH SCHOOL
-            </h2>
-            <p className="text-xs text-amber-400 font-semibold mt-1 uppercase tracking-widest">
-              Autonomous School Operating System
-            </p>
-          </div>
-
-          <p className="text-xs text-slate-300 leading-relaxed bg-slate-900/80 p-4 rounded-2xl border border-slate-800 backdrop-blur-md">
-            Click below to swing open the 3D School Entrance Gates and initialize EduFlow OS.
-          </p>
-
-          <button
-            onClick={openGates}
-            className="w-full py-4 bg-gradient-to-r from-amber-500 via-emerald-500 to-amber-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black text-sm rounded-2xl shadow-2xl cursor-pointer transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
-          >
-            <span>Open School Gates & Enter Campus</span>
-            <ChevronRight className="w-5 h-5" />
-          </button>
+      {/* Center Gate Opener Indicator */}
+      <div className="z-30 text-center space-y-5 max-w-md px-6 animate-in fade-in zoom-in duration-500">
+        <div className="w-20 h-20 rounded-3xl bg-amber-500/10 border-2 border-amber-500/50 flex items-center justify-center mx-auto text-amber-400 shadow-2xl animate-pulse">
+          <Building2 className="w-10 h-10" />
         </div>
-      )}
+        <div>
+          <h2 className="text-2xl font-black text-white tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+            VICTORY HIGH SCHOOL
+          </h2>
+          <p className="text-xs text-amber-400 font-semibold mt-1 uppercase tracking-widest">
+            Autonomous School Operating System
+          </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 text-xs text-emerald-400 font-mono bg-slate-900/90 py-2.5 px-4 rounded-xl border border-slate-800">
+          <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+          <span>Opening Campus Gates...</span>
+        </div>
+      </div>
     </div>
   );
 }
