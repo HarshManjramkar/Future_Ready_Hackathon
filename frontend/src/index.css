@@ -318,9 +318,25 @@ button:active {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pillarPulse {
-  0%, 100% { opacity: 0.8; }
-  50%       { opacity: 0.3; }
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 70px rgba(16,185,129,0.5); }
+  50% { transform: scale(1.05); box-shadow: 0 0 95px rgba(16,185,129,0.85); }
+}
+
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes flashPulse {
+  0%   { opacity: 0; }
+  50%  { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 .intro-container {

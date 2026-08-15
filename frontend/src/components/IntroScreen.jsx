@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GraduationCap, Landmark, Sparkles, ArrowRight, ChevronRight, Shield, Lock } from 'lucide-react';
+import { GraduationCap, Landmark, Sparkles, ChevronRight, Shield, Lock } from 'lucide-react';
 
 const problems = [
   {
     emoji: '📋',
-    title: 'A teacher calls in sick — 847 students lose class',
+    title: 'A teacher calls in sick — 847 students get no class',
     detail: 'Manual phone calls for hours. No central system. No substitute. Half a school day lost in chaos.'
   },
   {
@@ -98,30 +98,30 @@ export default function IntroScreen({ onComplete }) {
     };
   }, []);
 
-  // Sequence Timers (+2.5 to +3.5s per phase for relaxed reading)
+  // Sequence Timers (Automated transitions -> Auto-Dashboard Entry)
   useEffect(() => {
     // Open 3D Gates after 300ms
     const gateTimer = setTimeout(() => setGatesOpened(true), 300);
 
     const timers = [
       gateTimer,
-      setTimeout(() => setPhase('logo'), 2800),      // 2.8s: Gates swing open -> Logo appears
-      setTimeout(() => setPhase('problem'), 6200),   // 6.2s: Problem Cards (What Problem)
-      setTimeout(() => setPhase('flash'), 12500),    // 12.5s: Flash transition
-      setTimeout(() => setPhase('solution'), 12800), // 12.8s: Solution Cards (What We Have Done)
-      setTimeout(() => setPhase('brand'), 19000),    // 19.0s: Final Brand Reveal & Progress bar
-      setTimeout(() => triggerExit(), 22000),       // 22.0s: Auto-exit to System
+      setTimeout(() => setPhase('logo'), 3000),      // 3.0s: Gates swing open -> Logo appears
+      setTimeout(() => setPhase('problem'), 6800),   // 6.8s: Problem Cards (What Problem)
+      setTimeout(() => setPhase('flash'), 13500),    // 13.5s: Flash transition
+      setTimeout(() => setPhase('solution'), 13800), // 13.8s: Solution Cards (What We Have Done)
+      setTimeout(() => setPhase('brand'), 20500),    // 20.5s: Final Brand Reveal & Progress bar
+      setTimeout(() => triggerExit(), 23500),       // 23.5s: Auto-exit to System Dashboard
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
 
   const triggerExit = () => {
     setExiting(true);
-    setTimeout(onComplete, 800);
+    setTimeout(onComplete, 950);
   };
 
   return (
-    <div className={`fixed inset-0 z-50 bg-slate-950 flex items-center justify-center overflow-hidden font-sans ${exiting ? 'animate-fadeOut' : ''}`}>
+    <div className={`fixed inset-0 z-50 bg-slate-950 flex items-center justify-center overflow-hidden font-sans ${exiting ? 'opacity-0 transition-opacity duration-1000 pointer-events-none' : ''}`}>
       {/* Background Particle Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-0" />
 
@@ -186,8 +186,8 @@ export default function IntroScreen({ onComplete }) {
 
         {/* ── PHASE 1: GATES OPENING REVEAL ── */}
         {phase === 'gate' && (
-          <div className="z-10 text-center space-y-4 animate-in fade-in zoom-in duration-500">
-            <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 border-2 border-emerald-500/50 flex items-center justify-center mx-auto text-emerald-400 shadow-2xl animate-pulse">
+          <div className="z-10 text-center space-y-4" style={{ animation: 'introFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both' }}>
+            <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 border-2 border-emerald-500/50 flex items-center justify-center mx-auto text-emerald-400 shadow-2xl" style={{ animation: 'logoPulse 2s ease-in-out infinite' }}>
               <Landmark className="w-10 h-10" />
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 font-mono">
@@ -204,8 +204,8 @@ export default function IntroScreen({ onComplete }) {
 
         {/* ── PHASE 2: LOGO & PLATFORM REVEAL ── */}
         {phase === 'logo' && (
-          <div className="z-10 text-center space-y-4 max-w-lg px-6 animate-in fade-in zoom-in duration-500">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center mx-auto text-white shadow-2xl border border-white/20 animate-pulse">
+          <div className="z-10 text-center space-y-4 max-w-lg px-6" style={{ animation: 'introFadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both' }}>
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center mx-auto text-white shadow-2xl border border-white/20" style={{ animation: 'logoPulse 2s ease-in-out infinite' }}>
               <GraduationCap className="w-10 h-10" />
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 font-mono">
@@ -225,11 +225,11 @@ export default function IntroScreen({ onComplete }) {
 
         {/* ── PHASE 3: WHAT PROBLEM (THE CHALLENGE IN SCHOOLS TODAY) ── */}
         {phase === 'problem' && (
-          <div className="z-10 max-w-2xl w-full px-6 space-y-6 animate-in fade-in zoom-in duration-500">
+          <div className="z-10 max-w-2xl w-full px-6 space-y-6" style={{ animation: 'introFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both' }}>
             <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/30">
+              <p className="text-xs font-bold uppercase tracking-wider text-rose-400 font-mono">
                 The Challenge in Schools Today
-              </span>
+              </p>
               <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>
                 Legacy Systems Break Down Every Single Morning
               </h2>
@@ -237,7 +237,7 @@ export default function IntroScreen({ onComplete }) {
 
             <div className="space-y-3">
               {problems.map((p, idx) => (
-                <div key={idx} className="p-4 rounded-2xl bg-rose-950/20 border border-rose-500/30 border-l-4 border-l-rose-500 flex items-start gap-4 shadow-xl">
+                <div key={idx} className="p-4 rounded-2xl bg-rose-950/20 border border-rose-500/30 border-l-4 border-l-rose-500 flex items-start gap-4 shadow-xl" style={{ animation: `cardSlideIn 0.5s cubic-bezier(0.16,1,0.3,1) ${idx * 0.22}s both` }}>
                   <span className="text-2xl">{p.emoji}</span>
                   <div>
                     <h4 className="text-sm font-bold text-rose-300">{p.title}</h4>
@@ -251,16 +251,16 @@ export default function IntroScreen({ onComplete }) {
 
         {/* ── FLASH TRANSITION ── */}
         {phase === 'flash' && (
-          <div className="absolute inset-0 bg-slate-950 z-30 animate-pulse" />
+          <div className="absolute inset-0 bg-slate-950 z-30" style={{ animation: 'flashPulse 0.3s ease-out both' }} />
         )}
 
         {/* ── PHASE 4: WHAT WE HAVE DONE (HOW EDUFLOW SOLVES IT) ── */}
         {phase === 'solution' && (
-          <div className="z-10 max-w-2xl w-full px-6 space-y-6 animate-in fade-in zoom-in duration-500">
+          <div className="z-10 max-w-2xl w-full px-6 space-y-6" style={{ animation: 'introFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both' }}>
             <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-400 font-mono">
                 How EduFlow Solves It
-              </span>
+              </p>
               <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>
                 Autonomous AI Operations Engine
               </h2>
@@ -268,7 +268,7 @@ export default function IntroScreen({ onComplete }) {
 
             <div className="space-y-3">
               {solutions.map((s, idx) => (
-                <div key={idx} className="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 border-l-4 border-l-emerald-500 flex items-start gap-4 shadow-xl">
+                <div key={idx} className="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 border-l-4 border-l-emerald-500 flex items-start gap-4 shadow-xl" style={{ animation: `cardSlideIn 0.5s cubic-bezier(0.16,1,0.3,1) ${idx * 0.22}s both` }}>
                   <span className="text-2xl">{s.emoji}</span>
                   <div>
                     <h4 className="text-sm font-bold text-emerald-300">{s.title}</h4>
@@ -280,9 +280,9 @@ export default function IntroScreen({ onComplete }) {
           </div>
         )}
 
-        {/* ── PHASE 5: FINAL BRAND REVEAL & ENTER SYSTEM ── */}
+        {/* ── PHASE 5: FINAL BRAND REVEAL & AUTO DASHBOARD ENTRY ── */}
         {phase === 'brand' && (
-          <div className="z-10 text-center space-y-5 max-w-md px-6 animate-in fade-in zoom-in duration-500">
+          <div className="z-10 text-center space-y-5 max-w-md px-6" style={{ animation: 'introFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both' }}>
             <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center mx-auto text-white shadow-2xl border border-white/20">
               <GraduationCap className="w-10 h-10" />
             </div>
@@ -295,13 +295,13 @@ export default function IntroScreen({ onComplete }) {
               </p>
             </div>
 
-            <button
-              onClick={triggerExit}
-              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm rounded-2xl shadow-2xl cursor-pointer transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
-            >
-              <span>Enter Autonomous System Now</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
+            {/* Loading Progress Bar */}
+            <div className="w-56 h-1 rounded-full bg-slate-800 mx-auto overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-indigo-500" 
+                style={{ animation: 'progressBar 2.4s cubic-bezier(0.16,1,0.3,1) forwards' }}
+              />
+            </div>
           </div>
         )}
       </div>
