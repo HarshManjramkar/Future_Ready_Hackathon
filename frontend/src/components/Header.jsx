@@ -1,13 +1,21 @@
 import React from 'react';
-import { Search, Sparkles, RefreshCw } from 'lucide-react';
+import { Search, Sparkles, RefreshCw, Palette } from 'lucide-react';
 
 export default function Header({
   title,
   subtitle,
   onSearchClick,
   onResetDemo,
-  onTriggerTour
+  onTriggerTour,
+  activeTheme,
+  setActiveTheme
 }) {
+  const themes = [
+    { id: 'emerald', name: 'Emerald', dot: '#10b981' },
+    { id: 'midnight', name: 'Midnight', dot: '#6366f1' },
+    { id: 'stone', name: 'Stone', dot: '#f59e0b' }
+  ];
+
   return (
     <div className="flex flex-col sticky top-0 z-30 transition-all duration-300"
       style={{ background: 'var(--sidebar-bg)', borderBottom: '1px solid var(--panel-border)' }}>
@@ -25,13 +33,32 @@ export default function Header({
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Theme Quick Toggle */}
+          <div className="hidden sm:flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800">
+            {themes.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTheme && setActiveTheme(t.id)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                  activeTheme === t.id 
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm' 
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title={`Switch to ${t.name} Theme`}
+              >
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: t.dot }} />
+                <span>{t.name}</span>
+              </button>
+            ))}
+          </div>
+
           {/* Guided Tour Launcher Button */}
           <button
             onClick={onTriggerTour}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Start Guided Tour</span>
+            <span>Guided Tour</span>
           </button>
 
           {/* Reset Demo Button */}

@@ -96,7 +96,7 @@ export default function App() {
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview setActiveTab={setActiveTab} unreviewedCount={unreviewedCount} onTriggerTour={() => setTourStep(0)} onShowArch={() => setShowArchDrawer(true)} />;
+        return <DashboardOverview setActiveTab={setActiveTab} unreviewedCount={unreviewedCount} onTriggerTour={() => setTourStep(0)} onShowArch={() => setShowArchDrawer(true)} activeTheme={activeTheme} setActiveTheme={setActiveTheme} />;
       case 'dropzone':
         return <MagicDropzone />;
       case 'timetable':
@@ -108,7 +108,7 @@ export default function App() {
       case 'staffing':
         return <SmartStaffing />;
       default:
-        return <DashboardOverview setActiveTab={setActiveTab} unreviewedCount={unreviewedCount} onTriggerTour={() => setTourStep(0)} onShowArch={() => setShowArchDrawer(true)} />;
+        return <DashboardOverview setActiveTab={setActiveTab} unreviewedCount={unreviewedCount} onTriggerTour={() => setTourStep(0)} onShowArch={() => setShowArchDrawer(true)} activeTheme={activeTheme} setActiveTheme={setActiveTheme} />;
     }
   };
 
@@ -127,6 +127,8 @@ export default function App() {
           onTriggerMassAbsence={handleDemoTriggerMassAbsence}
           onResetDemo={handleResetDemo}
           onTriggerTour={() => setTourStep(0)}
+          activeTheme={activeTheme}
+          setActiveTheme={setActiveTheme}
         />
         <main className="flex-1 overflow-y-auto">{renderActiveView()}</main>
       </div>
