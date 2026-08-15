@@ -11,10 +11,11 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-export default function HumanReviewInbox() {
+export default function HumanReviewInbox({ onVerificationComplete }) {
   const [unreviewed, setUnreviewed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [approvedCount, setApprovedCount] = useState(0);
+  const [formEdits, setFormEdits] = useState({});
 
   useEffect(() => {
     fetchUnreviewed();
@@ -33,10 +34,19 @@ export default function HumanReviewInbox() {
     }
   };
 
+  const handleFieldChange = (docKey, field, value) => {
+    setFormEdits(prev => ({
+      ...prev,
+      [docKey]: { ...prev[docKey], [field]: value }
+    }));
+  };
+
   const handleApprove = async (idx) => {
     const doc = unreviewed[idx];
-    const fatherMobile = document.getElementById(`father-mobile-${idx}`)?.value || doc.parent_info?.father_mobile;
-    const aadhaarNumber = document.getElementById(`aadhaar-number-${idx}`)?.value || doc.student_info?.aadhaar_number;
+    const docKey = doc.id || doc.student_info?.aadhaar_number || doc.student_info?.full_name || `doc-${idx}`;
+    const edits = formEdits[docKey] || {};
+    const fatherMobile = edits.fatherMobile !== undefined ? edits.fatherMobile : (doc.parent_info?.father_mobile || '');
+    const aadhaarNumber = edits.aadhaarNumber !== undefined ? edits.aadhaarNumber : (doc.student_info?.aadhaar_number || '');
 
     const studentInfo = { ...doc.student_info, aadhaar_number: aadhaarNumber };
     const parentInfo = { ...doc.parent_info, father_mobile: fatherMobile };
@@ -49,7 +59,7 @@ export default function HumanReviewInbox() {
           index: idx,
           student_info: studentInfo,
           parent_info: parentInfo,
-          address: doc.address
+          address: doc.address || {}
         })
       });
       const data = await res.json();
@@ -58,6 +68,7 @@ export default function HumanReviewInbox() {
         updated.splice(idx, 1);
         setUnreviewed(updated);
         setApprovedCount(prev => prev + 1);
+        if (onVerificationComplete) onVerificationComplete();
       }
     } catch (err) {
       console.error(err);
@@ -93,55 +104,62 @@ export default function HumanReviewInbox() {
       {/* Inbox List */}
       {unreviewed.length > 0 ? (
         <div className="space-y-6">
-          {unreviewed.map((doc, idx) => (
-            <div key={idx} className="glass-panel p-6 rounded-2xl border-2 border-amber-500/40 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3" style={{ borderColor: 'var(--panel-border)' }}>
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-amber-500/20 text-amber-500 rounded-xl">
-                    <AlertTriangle className="w-5 h-5" />
+          {unreviewed.map((doc, idx) => {
+            const docKey = doc.id || doc.student_info?.aadhaar_number || doc.student_info?.full_name || `doc-${idx}`;
+            const edits = formEdits[docKey] || {};
+            const fatherMobile = edits.fatherMobile !== undefined ? edits.fatherMobile : (doc.parent_info?.father_mobile || '');
+            const aadhaarNumber = edits.aadhaarNumber !== undefined ? edits.aadhaarNumber : (doc.student_info?.aadhaar_number || '');
+
+            return (
+              <div key={docKey} className="glass-panel p-6 rounded-2xl border-2 border-amber-500/40 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3" style={{ borderColor: 'var(--panel-border)' }}>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-amber-500/20 text-amber-500 rounded-xl">
+                      <AlertTriangle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
+                        {doc.student_info?.full_name || 'Smudged Student Form'}
+                      </h3>
+                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        Applying for: {doc.student_info?.class_applying_for || 'Grade 10'} • Flag Reason: Low OCR Confidence on Mobile & Aadhaar
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
-                      {doc.student_info?.full_name || 'Smudged Student Form'}
-                    </h3>
-                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      Applying for: {doc.student_info?.class_applying_for || 'Grade 10'} • Flag Reason: Low OCR Confidence on Mobile & Aadhaar
-                    </p>
-                  </div>
+
+                  <button
+                    onClick={() => handleApprove(idx)}
+                    className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Verify & Commit to Roster</span>
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => handleApprove(idx)}
-                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Verify & Commit to Roster</span>
-                </button>
-              </div>
-
-              {/* Editable Fields Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Parent Father Mobile Number (Verify Smudge)</label>
-                  <input
-                    id={`father-mobile-${idx}`}
-                    type="text"
-                    defaultValue={doc.parent_info?.father_mobile || ''}
-                    className="w-full text-xs font-mono"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Student Aadhaar / ID Number</label>
-                  <input
-                    id={`aadhaar-number-${idx}`}
-                    type="text"
-                    defaultValue={doc.student_info?.aadhaar_number || ''}
-                    className="w-full text-xs font-mono"
-                  />
+                {/* Editable Fields Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Parent Father Mobile Number (Verify Smudge)</label>
+                    <input
+                      type="text"
+                      value={fatherMobile}
+                      onChange={(e) => handleFieldChange(docKey, 'fatherMobile', e.target.value)}
+                      className="w-full text-xs font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Student Aadhaar / ID Number</label>
+                    <input
+                      type="text"
+                      value={aadhaarNumber}
+                      onChange={(e) => handleFieldChange(docKey, 'aadhaarNumber', e.target.value)}
+                      className="w-full text-xs font-mono"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="glass-panel p-12 rounded-2xl text-center space-y-3">
