@@ -24,6 +24,8 @@ inspect_*.py
 backend/inspect_*.py
 generate_*.py
 
-# Logs
+# Logs & IDE / Agent Caches
 *.log
 npm-debug.log*
+.gemini/
+.pytest_cache/
