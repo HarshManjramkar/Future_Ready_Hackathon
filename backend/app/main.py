@@ -107,9 +107,9 @@ def simulate_mass_absence():
 
 @app.post("/api/document/process")
 @app.post("/api/document/parse")
-async def parse_document(file: UploadFile = File(...), sample_type: Optional[str] = Form(None)):
+def parse_document(file: UploadFile = File(...), sample_type: Optional[str] = Form(None)):
     try:
-        contents = await file.read()
+        contents = file.file.read()
         parsed = doc_parser.parse_image_bytes(contents, filename=file.filename, sample_type=sample_type)
         if parsed.get("requires_human_review", False):
             encoded = base64.b64encode(contents).decode("utf-8")
@@ -144,8 +144,8 @@ def verify_document(req: VerificationRequest):
     if vd.get("document_type", "") == "TEACHER_LEAVE_FORM" or not vd.get("student_info"):
         return {"status": "SUCCESS", "message": "Document verified and dismissed."}
         
-    student_info = vd.get("student_info", {})
-    parent_info = vd.get("parent_info", {})
+    student_info = vd.get("student_info") or {}
+    parent_info = vd.get("parent_info") or {}
     
     raw_aadhaar = str(student_info.get("aadhaar_number", ""))
     clean_aadhaar = re.sub(r'[^0-9A-Za-z-]', '', raw_aadhaar)

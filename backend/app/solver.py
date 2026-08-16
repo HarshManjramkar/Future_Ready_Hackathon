@@ -79,7 +79,7 @@ class TimetableSolver:
 
     def resolve_teacher_absence(self, absent_teacher_id: str, day: str, current_schedule: List[Dict]) -> Dict[str, Any]:
         """Real-time Disruption Solver with qualification match and dynamic load tracking."""
-        target_id = absent_teacher_id
+        target_id = str(absent_teacher_id) if absent_teacher_id else ""
         if target_id.startswith("T") and not target_id.startswith("TCH_"):
             target_id = target_id.replace("T", "TCH_")
 
