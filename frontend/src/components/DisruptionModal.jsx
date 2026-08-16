@@ -33,13 +33,13 @@ export default function DisruptionModal({
               className="text-xs rounded-lg p-2 mt-1 outline-none cursor-pointer border border-white/10"
               style={{ backgroundColor: 'var(--card-bg-solid)', color: 'var(--text-primary)', borderColor: 'var(--panel-border)' }}
             >
-              <option value="TCH_101">Mrs. Deepti Bisen (Mathematics)</option>
-              <option value="TCH_102">Mr. Rajesh Deshmukh (Science)</option>
-              <option value="TCH_103">Mrs. Sunita Kulkarni (English)</option>
-              <option value="TCH_104">Mr. Amit Joshi (Social Science)</option>
-              <option value="TCH_105">Mrs. Rohini Patil (Second Language)</option>
-              <option value="TCH_106">Mr. Vikram Shinde (Info Tech)</option>
-              <option value="TCH_107">Coach Ramesh Pawar (Physical Ed)</option>
+              <option value="TCH_101" className="bg-slate-900 text-slate-100">Mrs. Deepti Bisen (Mathematics)</option>
+              <option value="TCH_102" className="bg-slate-900 text-slate-100">Mr. Rajesh Deshmukh (Science)</option>
+              <option value="TCH_103" className="bg-slate-900 text-slate-100">Mrs. Sunita Kulkarni (English)</option>
+              <option value="TCH_104" className="bg-slate-900 text-slate-100">Mr. Amit Joshi (Social Science)</option>
+              <option value="TCH_105" className="bg-slate-900 text-slate-100">Mrs. Rohini Patil (Second Language)</option>
+              <option value="TCH_106" className="bg-slate-900 text-slate-100">Mr. Vikram Shinde (Info Tech)</option>
+              <option value="TCH_107" className="bg-slate-900 text-slate-100">Coach Ramesh Pawar (Physical Ed)</option>
             </select>
           </div>
           <button
