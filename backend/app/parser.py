@@ -65,7 +65,19 @@ class DocumentParser:
         if self.client:
             try:
                 img = Image.open(io.BytesIO(image_bytes))
-                resp = self.client.models.generate_content(model='gemini-3.5-flash', contents=[img, SYSTEM_CLASSIFIER_PROMPT])
+                models_to_try = ['gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash']
+                resp = None
+                last_err = None
+                for m in models_to_try:
+                    try:
+                        resp = self.client.models.generate_content(model=m, contents=[img, SYSTEM_CLASSIFIER_PROMPT])
+                        break
+                    except Exception as e:
+                        last_err = e
+                        if "503" not in str(e) and "429" not in str(e) and "404" not in str(e):
+                            raise e
+                if not resp:
+                    raise last_err
                 parsed = self._clean_markdown_json(resp.text)
                 
                 # Enforce rule: if any field is UNCERTAIN, flag for human review
