@@ -11,7 +11,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://your-backend-api.onrender.com/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://eduflow-backend-qxid.onrender.com/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
