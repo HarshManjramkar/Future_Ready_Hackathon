@@ -12,7 +12,7 @@ Educational institutions leak hundreds of administrative hours each week on mech
 * **Paperwork Deadlocks**: Handwritten admission forms and medical slips sit unreviewed for weeks in paper trays.
 * **Attendance Fraud ("Buddy-Punching")**: Traditional RFID cards and manual roll-calls enable proxy attendance fraud.
 
-**EduFlow OS** transforms traditional school administration into an **autonomous, reactive digital campus**. Powered by **Google Gemini 1.5 Vision VLMs**, **Google OR-Tools CP-SAT Combinatorial Solvers**, and **Dual-Modal Edge Computer Vision**, EduFlow unifies admissions, scheduling, anti-cheat attendance, and student safety into a single real-time engine.
+**EduFlow OS** transforms traditional school administration into an **autonomous, reactive digital campus**. Powered by **Google Gemini 3.5 Flash Vision VLMs**, **Google OR-Tools CP-SAT Combinatorial Solvers**, and **Dual-Modal Edge Computer Vision**, EduFlow unifies admissions, scheduling, anti-cheat attendance, and student safety into a single real-time engine.
 
 ---
 
@@ -21,7 +21,7 @@ Educational institutions leak hundreds of administrative hours each week on mech
 ```mermaid
 flowchart TD
     subgraph Ingestion [Perception Layer]
-        A[Handwritten Form Upload] --> B[Gemini 1.5 Flash Vision VLM]
+        A[Handwritten Form Upload] --> B[Gemini 3.5 Flash Vision VLM]
         B --> C{Confidence >= 0.80?}
         C -->|Yes| D[Auto-Enroll & Database Sync]
         C -->|No / Smudged| E[Human-in-the-Loop Review Inbox]
@@ -40,8 +40,9 @@ flowchart TD
 ```
 
 ### 1. 🪄 Magic Dropzone (Multimodal VLM Zero-Shot Ingestion)
-* **Zero-Shot Document Parsing**: Leverages **Google Gemini 1.5 Flash Vision** to extract structured schemas from unstandardized handwritten forms, medical records, and field trip permissions.
-* **Calibrated Uncertainty & HITL**: Automatically flags smudged or ambiguous fields (Aadhaar, DoB) and routes them to the **Human Review Inbox** with pre-filled forms.
+* **Zero-Shot Document Parsing**: Leverages **Google Gemini 3.5 Flash Vision** to dynamically extract structured schemas from unstandardized handwritten forms, medical records, and field trip permissions—without hardcoded templates.
+* **Calibrated Uncertainty & HITL**: Automatically flags smudged or ambiguous fields (Aadhaar, DoB) and routes them to the **Human Review Inbox** with a side-by-side visual editor.
+* **Anti-Fraud Verification (WhatsApp API Integration)**: Intercepts high-risk documents (Medical Records, Leave Forms) and extracts parent/guardian phone numbers to dispatch an instant simulated WhatsApp verification ping to prevent student signature forgery.
 
 ### 2. ⚡ Reactive Timetable Engine & Live Disruption Solver
 * **Combinatorial Constraint Solver**: Built on **Google OR-Tools (CP-SAT)**, solving complex schedules against hard constraints (teacher specialization, room capacities, zero double-booking) in **< 0.05 seconds**.
@@ -64,7 +65,7 @@ flowchart TD
 | **Edge Computer Vision** | Google MediaPipe, WebRTC, WASM | In-browser 60 FPS face tracking & anti-proxy verification |
 | **Backend REST API** | Python 3.11, FastAPI, Uvicorn, GZip | High-throughput asynchronous REST microservices |
 | **Optimization Solver** | Google OR-Tools (CP-SAT Model) | Combinatorial constraint optimization engine |
-| **Vision-Language AI** | Google Gemini 1.5 Flash Vision | Multimodal zero-shot handwritten document reader |
+| **Vision-Language AI** | Google Gemini 3.5 Flash Vision | Multimodal zero-shot handwritten document reader |
 | **Hosting & Edge CDN** | Vercel (Frontend Edge) + Render / HF (Backend) | Free-tier, zero-downtime, global HTTPS delivery |
 
 ---

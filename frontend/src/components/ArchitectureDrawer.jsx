@@ -49,7 +49,7 @@ export default function ArchitectureDrawer({ isOpen, onClose }) {
             <div className="glass-panel p-4 space-y-2 border-l-4 border-purple-500">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-400" />
-                <h4 className="font-extrabold text-white text-sm">Gemini 1.5 Pro VLM</h4>
+                <h4 className="font-extrabold text-white text-sm">Gemini 3.5 Flash VLM</h4>
               </div>
               <p>
                 OCR systems break when handwriting is messy or structured tables shift. EduFlow's **Magic Dropzone** uses a multimodal Vision-Language Model:

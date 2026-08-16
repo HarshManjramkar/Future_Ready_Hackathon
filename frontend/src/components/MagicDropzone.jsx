@@ -19,7 +19,7 @@ export default function MagicDropzone() {
 
   const processFormFile = async (fileObj, sampleType = null) => {
     setIsParsing(true);
-    setParseProgress('Extracting image bytes & querying Gemini 1.5 Flash Vision...');
+    setParseProgress('Extracting image bytes & querying Gemini 3.5 Flash Vision...');
     setExtractedData(null);
     setTimetableResult(null);
 
@@ -78,7 +78,7 @@ export default function MagicDropzone() {
             <span className="text-xs font-bold uppercase tracking-wider text-sky-500 bg-sky-500/10 px-2.5 py-0.5 rounded border border-sky-500/30">
               Zero-Shot VLM Ingestion
             </span>
-            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Google Gemini 1.5 Vision Engine</span>
+            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Google Gemini 3.5 Vision Engine</span>
           </div>
           <h2 className="text-xl font-extrabold mt-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
             Magic Dropzone: AI Document Reader
@@ -88,20 +88,42 @@ export default function MagicDropzone() {
           </p>
         </div>
 
-        {/* Quick Sample Presets for Judges */}
-        <div className="flex flex-wrap gap-2">
-          <button onClick={() => loadPresetSample('clean')} className="px-3 py-1.5 app-subcard hover:border-sky-500/50 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer">
-            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-            <span>Sample 1: Clean Form</span>
-          </button>
-          <button onClick={() => loadPresetSample('messy')} className="px-3 py-1.5 app-subcard hover:border-amber-500/50 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer">
-            <span className="text-amber-500">⚠</span>
-            <span>Sample 2: Smudged Review</span>
-          </button>
-          <button onClick={() => loadPresetSample('leave')} className="px-3 py-1.5 app-subcard hover:border-emerald-500/50 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer">
-            <Zap className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Sample 3: Teacher Sick Leave</span>
-          </button>
+        {/* Quick Sample Presets & Judges Test Kit */}
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs font-bold text-slate-400 mr-2 hidden lg:block">Auto-Test:</span>
+            <button onClick={() => loadPresetSample('clean')} className="px-3 py-1.5 app-subcard hover:border-sky-500/50 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer">
+              <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+              <span>Sample 1: Clean Form</span>
+            </button>
+            <button onClick={() => loadPresetSample('messy')} className="px-3 py-1.5 app-subcard hover:border-amber-500/50 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer">
+              <span className="text-amber-500">⚠</span>
+              <span>Sample 2: Smudged Review</span>
+            </button>
+            <button onClick={() => loadPresetSample('leave')} className="px-3 py-1.5 app-subcard hover:border-emerald-500/50 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer">
+              <Zap className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Sample 3: Teacher Sick Leave</span>
+            </button>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 items-center mt-1 pt-3 border-t border-slate-700/30">
+            <span className="text-[11px] font-bold text-emerald-400 mr-1 flex items-center gap-1.5">
+              <UploadCloud className="w-3.5 h-3.5" />
+              Judges' Manual Test Kit:
+            </span>
+            <a href="/judge_samples/1_Handwritten_Admission_Form.png" download className="text-[10px] px-2 py-1 bg-slate-800/50 hover:bg-slate-700/80 rounded border border-slate-600/50 text-slate-300 hover:text-white transition cursor-pointer font-medium flex items-center gap-1">
+              <span>↓</span> Handwritten Admission
+            </a>
+            <a href="/judge_samples/2_Digitally_Filled_Medical_Form.png" download className="text-[10px] px-2 py-1 bg-slate-800/50 hover:bg-slate-700/80 rounded border border-slate-600/50 text-slate-300 hover:text-white transition cursor-pointer font-medium flex items-center gap-1">
+              <span>↓</span> Digital Medical
+            </a>
+            <a href="/judge_samples/3_Handwritten_Teacher_Leave.png" download className="text-[10px] px-2 py-1 bg-slate-800/50 hover:bg-slate-700/80 rounded border border-slate-600/50 text-slate-300 hover:text-white transition cursor-pointer font-medium flex items-center gap-1">
+              <span>↓</span> Handwritten Leave
+            </a>
+            <a href="/judge_samples/4_Clean_Field_Trip_Permission.png" download className="text-[10px] px-2 py-1 bg-slate-800/50 hover:bg-slate-700/80 rounded border border-slate-600/50 text-slate-300 hover:text-white transition cursor-pointer font-medium flex items-center gap-1">
+              <span>↓</span> Clean Field Trip
+            </a>
+          </div>
         </div>
       </div>
 

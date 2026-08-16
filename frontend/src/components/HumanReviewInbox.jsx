@@ -34,22 +34,27 @@ export default function HumanReviewInbox({ onVerificationComplete }) {
     }
   };
 
-  const handleFieldChange = (docKey, field, value) => {
+  const handleFieldChange = (docKey, valueStr) => {
     setFormEdits(prev => ({
       ...prev,
-      [docKey]: { ...prev[docKey], [field]: value }
+      [docKey]: valueStr
     }));
   };
 
   const handleApprove = async (idx) => {
     const doc = unreviewed[idx];
     const docKey = doc.id || doc.student_info?.aadhaar_number || doc.student_info?.full_name || `doc-${idx}`;
-    const edits = formEdits[docKey] || {};
-    const fatherMobile = edits.fatherMobile !== undefined ? edits.fatherMobile : (doc.parent_info?.father_mobile || '');
-    const aadhaarNumber = edits.aadhaarNumber !== undefined ? edits.aadhaarNumber : (doc.student_info?.aadhaar_number || '');
+    let verifiedData = { ...doc };
+    delete verifiedData.image_data; // Don't send the heavy image back
 
-    const studentInfo = { ...doc.student_info, aadhaar_number: aadhaarNumber };
-    const parentInfo = { ...doc.parent_info, father_mobile: fatherMobile };
+    if (formEdits[docKey]) {
+      try {
+        verifiedData = JSON.parse(formEdits[docKey]);
+      } catch (e) {
+        alert("Invalid JSON format in the editor. Please fix syntax errors before verifying.");
+        return;
+      }
+    }
 
     try {
       const res = await fetch('/api/document/verify', {
@@ -57,9 +62,7 @@ export default function HumanReviewInbox({ onVerificationComplete }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           index: idx,
-          student_info: studentInfo,
-          parent_info: parentInfo,
-          address: doc.address || {}
+          verified_data: verifiedData
         })
       });
       const data = await res.json();
@@ -106,9 +109,9 @@ export default function HumanReviewInbox({ onVerificationComplete }) {
         <div className="space-y-6">
           {unreviewed.map((doc, idx) => {
             const docKey = doc.id || doc.student_info?.aadhaar_number || doc.student_info?.full_name || `doc-${idx}`;
-            const edits = formEdits[docKey] || {};
-            const fatherMobile = edits.fatherMobile !== undefined ? edits.fatherMobile : (doc.parent_info?.father_mobile || '');
-            const aadhaarNumber = edits.aadhaarNumber !== undefined ? edits.aadhaarNumber : (doc.student_info?.aadhaar_number || '');
+            // Extract image_data so it doesn't clutter the JSON editor
+            const { image_data, ...docWithoutImage } = doc;
+            const currentJsonStr = formEdits[docKey] !== undefined ? formEdits[docKey] : JSON.stringify(docWithoutImage, null, 2);
 
             return (
               <div key={docKey} className="glass-panel p-6 rounded-2xl border-2 border-amber-500/40 space-y-4">
@@ -136,24 +139,26 @@ export default function HumanReviewInbox({ onVerificationComplete }) {
                   </button>
                 </div>
 
-                {/* Editable Fields Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Parent Father Mobile Number (Verify Smudge)</label>
-                    <input
-                      type="text"
-                      value={fatherMobile}
-                      onChange={(e) => handleFieldChange(docKey, 'fatherMobile', e.target.value)}
-                      className="w-full text-xs font-mono"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Student Aadhaar / ID Number</label>
-                    <input
-                      type="text"
-                      value={aadhaarNumber}
-                      onChange={(e) => handleFieldChange(docKey, 'aadhaarNumber', e.target.value)}
-                      className="w-full text-xs font-mono"
+                {/* Side-by-side Image and Editor */}
+                <div className="flex flex-col md:flex-row gap-6 mt-4">
+                  {/* Left: Image Thumbnail */}
+                  {image_data && (
+                    <div className="w-full md:w-1/3 flex flex-col gap-2">
+                      <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>Original Document</span>
+                      <div className="bg-slate-900/50 rounded-xl overflow-hidden border border-slate-700/50 p-2 flex items-center justify-center min-h-[300px]">
+                        <img src={image_data} alt="Scanned form" className="w-full h-auto object-contain max-h-[400px] rounded-lg shadow-lg" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Right: JSON Editor */}
+                  <div className={`w-full ${image_data ? 'md:w-2/3' : 'md:w-full'} flex flex-col gap-2`}>
+                    <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>Extracted Payload (Editable JSON)</span>
+                    <textarea 
+                      value={currentJsonStr}
+                      onChange={(e) => handleFieldChange(docKey, e.target.value)}
+                      className="w-full h-full min-h-[300px] p-4 bg-slate-900/80 border border-slate-700/50 rounded-xl text-xs font-mono text-emerald-400 outline-none focus:border-emerald-500/50 transition resize-y"
+                      spellCheck={false}
                     />
                   </div>
                 </div>

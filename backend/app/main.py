@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from app.mock_data import COHORTS, STUDENTS
 from app.state import solver_engine, doc_parser, CURRENT_SCHEDULE, ATTENDANCE_LOGS, UNREVIEWED_DOCUMENTS, reset_memory_state
+import base64
 
 app = FastAPI(title="EduFlow Engine API", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
@@ -36,9 +37,7 @@ class VerifyIdRequest(BaseModel):
 
 class VerificationRequest(BaseModel):
     index: int
-    student_info: Dict[str, Any]
-    parent_info: Dict[str, Any]
-    address: Dict[str, Any]
+    verified_data: Dict[str, Any]
 
 @app.get("/")
 @app.get("/health")
@@ -113,6 +112,8 @@ async def parse_document(file: UploadFile = File(...), sample_type: Optional[str
         contents = await file.read()
         parsed = doc_parser.parse_image_bytes(contents, filename=file.filename, sample_type=sample_type)
         if parsed.get("requires_human_review", False):
+            encoded = base64.b64encode(contents).decode("utf-8")
+            parsed["image_data"] = f"data:{file.content_type};base64,{encoded}"
             UNREVIEWED_DOCUMENTS.append(parsed)
         if parsed.get("document_type") == "TEACHER_LEAVE_FORM":
             t_id, day = parsed.get("teacher_id", "TCH_101"), parsed.get("date_of_absence", "Monday")
@@ -137,14 +138,23 @@ def verify_document(req: VerificationRequest):
     if req.index < 0 or req.index >= len(UNREVIEWED_DOCUMENTS):
         raise HTTPException(status_code=400, detail="Invalid document index")
     UNREVIEWED_DOCUMENTS.pop(req.index)
-    raw_aadhaar = str(req.student_info.get("aadhaar_number", ""))
+    
+    # Check if it's an admission form to add a student
+    vd = req.verified_data
+    if vd.get("document_type", "") == "TEACHER_LEAVE_FORM" or not vd.get("student_info"):
+        return {"status": "SUCCESS", "message": "Document verified and dismissed."}
+        
+    student_info = vd.get("student_info", {})
+    parent_info = vd.get("parent_info", {})
+    
+    raw_aadhaar = str(student_info.get("aadhaar_number", ""))
     clean_aadhaar = re.sub(r'[^0-9A-Za-z-]', '', raw_aadhaar)
     student_id = clean_aadhaar.split("-")[-1][:4] if "-" in clean_aadhaar else "99" + str(len(ATTENDANCE_LOGS) + 1)
     new_student = {
-        "id": student_id, "name": html.escape(str(req.student_info.get("full_name", "Admitted Student")).strip()),
-        "grade": html.escape(str(req.student_info.get("class_applying_for", "Grade 10-A")).strip()),
+        "id": student_id, "name": html.escape(str(student_info.get("full_name", "Admitted Student")).strip()),
+        "grade": html.escape(str(student_info.get("class_applying_for", "Grade 10-A")).strip()),
         "roll_no": student_id, "qr_code": student_id,
-        "guardian_phone": html.escape(str(req.parent_info.get("father_mobile", "--")).strip()),
+        "guardian_phone": html.escape(str(parent_info.get("father_mobile", "--")).strip()),
         "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
         "attendance_status": "ABSENT", "check_in_time": "--"
     }
@@ -221,3 +231,15 @@ def predict_student_risk():
         {"id": "9902", "name": "Tanvi", "grade": "Grade 10-B", "risk_score": 45, "risk_level": "MEDIUM", "anomalies": ["2 late check-ins", "Smudged Aadhaar field flagged"], "recommendation": "Review credentials / monitor attendance next week."},
         {"id": "9905", "name": "Sarthak", "grade": "Grade 10-A", "risk_score": 24, "risk_level": "LOW", "anomalies": ["1 missing check-in flag"], "recommendation": "Verify QR scan logs."}
     ]}
+
+class NotifyRequest(BaseModel):
+    phone_number: str
+    student_name: str
+    document_type: str
+
+@app.post("/api/document/notify-parent")
+async def notify_parent(req: NotifyRequest):
+    import asyncio, time
+    await asyncio.sleep(1.5) # Simulate network delay
+    print(f"[TWILIO MOCK] WhatsApp Sent to {req.phone_number} for {req.student_name}'s {req.document_type}")
+    return {"status": "SUCCESS", "message_id": f"SM{int(time.time())}abc123"}

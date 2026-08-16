@@ -13,7 +13,7 @@ export default function Header({
   const themes = [
     { id: 'emerald', name: 'Emerald', dot: '#10b981' },
     { id: 'midnight', name: 'Midnight', dot: '#6366f1' },
-    { id: 'stone', name: 'Stone', dot: '#f59e0b' }
+    { id: 'light', name: 'Light', dot: '#cbd5e1' }
   ];
 
   return (

@@ -18,22 +18,20 @@ try:
 except ImportError:
     GENAI_AVAILABLE = False
 
-FORM_SCHEMA_PROMPT = """You are an advanced Multimodal Document AI.
-Step 1: Classify document_type into [STUDENT_ADMISSION_FORM, TEACHER_LEAVE_FORM, MEDICAL_RECORD, FIELD_TRIP_PERMISSION].
-Step 2: Output strict JSON schema containing:
+FORM_SCHEMA_PROMPT = """You are an elite Multimodal Document AI built for high-stakes form extraction.
+Step 1: Classify the document_type based on the form's content (e.g. VISITOR_PASS, HACKATHON_REGISTRATION, ADMISSION_FORM, TEACHER_LEAVE_FORM, etc.).
+Step 2: Read the document carefully and dynamically extract all visible form fields, key-value pairs, checkboxes, and handwritten text into a logically nested JSON structure.
+Step 3: Analyze the quality of the scan, smudges, and handwriting legibility.
+Step 4: Output a strict JSON object containing:
 {
-  "document_type": "STUDENT_ADMISSION_FORM",
-  "school_name": "School Name",
-  "academic_year": "2026-2027",
-  "student_info": {"full_name": "Name", "dob": "DD/MM/YYYY", "aadhaar_number": "1234-5678-9901"},
-  "parent_info": {"father_name": "Father", "father_mobile": "+91 9876543210"},
-  "address": {"street": "Street", "city": "City"},
-  "emergency_contact": {"phone": "+91 9876543210"},
-  "extraction_confidence": 0.95,
-  "requires_human_review": false,
-  "flagged_fields": []
+  "document_type": "<Classified Type>",
+  "school_name": "<Extract if present, or null>",
+  "extraction_confidence": <Float between 0.00 and 1.00. Use 0.95-0.99 for clean printed forms. Use 0.70-0.85 for messy handwriting, smudges, or poor scans.>,
+  "requires_human_review": <true if confidence is below 0.85 OR if any field is illegible, else false>,
+  "confidence_rationale": "<Brief 1-sentence explanation of why you gave this confidence score (e.g. 'Handwriting is messy in the DOB field', 'Scan is crisp and legible')>",
+  ... include all other extracted fields dynamically as nested objects or key-value pairs based on the form's sections ...
 }
-If handwriting is illegible, set field to "UNCERTAIN" and flag for review. Output valid JSON only."""
+If handwriting is illegible for a specific field, set its value to "UNCERTAIN". Output valid JSON only."""
 
 SYSTEM_CLASSIFIER_PROMPT = FORM_SCHEMA_PROMPT
 
@@ -63,73 +61,39 @@ class DocumentParser:
             raise
 
     def parse_image_bytes(self, image_bytes: bytes, filename: str = "form.jpg", sample_type: Optional[str] = None) -> Dict[str, Any]:
-        """Parses document bytes using Gemini 1.5 Flash Vision with uncertainty calibration."""
-        if self.client and not sample_type:
+        """Parses document bytes using Gemini 2.5 Flash Vision with uncertainty calibration."""
+        if self.client:
             try:
                 img = Image.open(io.BytesIO(image_bytes))
-                resp = self.client.models.generate_content(model='gemini-1.5-flash', contents=[img, SYSTEM_CLASSIFIER_PROMPT])
+                resp = self.client.models.generate_content(model='gemini-3.5-flash', contents=[img, SYSTEM_CLASSIFIER_PROMPT])
                 parsed = self._clean_markdown_json(resp.text)
+                
+                # Enforce rule: if any field is UNCERTAIN, flag for human review
                 if any(v == "UNCERTAIN" for v in str(parsed).split()):
                     parsed["requires_human_review"] = True
-                    parsed["extraction_confidence"] = min(parsed.get("extraction_confidence", 0.70), 0.75)
+                    if parsed.get("extraction_confidence", 1.0) > 0.80:
+                        parsed["extraction_confidence"] = 0.75
+                        
                 return parsed
             except Exception as e:
-                print(f"Gemini API error, falling back to calibrated preset: {e}")
+                # If there's an error, try to fetch the list of available models for debugging
+                available_models = []
+                try:
+                    for m in self.client.models.list():
+                        available_models.append(m.name)
+                except Exception:
+                    available_models = ["Could not fetch model list"]
 
-        fn, st = (filename or "").lower(), (sample_type or "").lower()
-        if "leave" in st or "leave" in fn or "teacher" in fn or "3_" in fn:
-            return {
-                "document_type": "TEACHER_LEAVE_FORM", "school_name": "VICTORY HIGH SCHOOL",
-                "teacher_name": "Mrs. Deepti Bisen", "teacher_id": "TCH_101",
-                "leave_type": "Sick Leave", "date_of_absence": "Monday",
-                "reason": "Severe Viral Fever", "extraction_confidence": 0.98,
-                "requires_human_review": False, "flagged_fields": []
-            }
-        elif "smudged" in st or "smudged" in fn or "messy" in st or "2_" in fn or "uncertain" in fn:
-            return {
-                "document_type": "STUDENT_ADMISSION_FORM", "school_name": "VICTORY HIGH SCHOOL",
-                "academic_year": "2026-2027",
-                "student_info": {
-                    "full_name": "Tanvi Patil", "dob": "UNCERTAIN", "gender": "Female",
-                    "blood_group": "B+", "nationality": "Indian", "class_applying_for": "Grade 10-A",
-                    "previous_school": "St. Marys", "aadhaar_number": "UNCERTAIN-9902"
-                },
-                "parent_info": {
-                    "father_name": "R. Patil", "father_occupation": "Business",
-                    "father_mobile": "+91 76207 79722", "mother_name": "S. Patil",
-                    "mother_occupation": "Homemaker", "mother_mobile": "--", "email": "patil.family@example.com"
-                },
-                "address": {"street": "Near Station Road", "city": "Pune", "state": "Maharashtra", "pin_code": "411001"},
-                "emergency_contact": {"person": "R. Patil", "relationship": "Father", "phone": "+91 76207 79722"},
-                "documents_submitted": ["Aadhaar Card"],
-                "extraction_confidence": 0.65, "requires_human_review": True,
-                "flagged_fields": ["dob", "aadhaar_number"]
-            }
-        elif "medical" in st or "medical" in fn:
-            return {
-                "document_type": "MEDICAL_RECORD_FORM", "school_name": "VICTORY HIGH SCHOOL",
-                "student_name": "Arjun Deshmukh", "student_id": "9901", "blood_group": "O+",
-                "allergies": ["Dust", "Peanuts"], "emergency_contact": "+91 76207 99602",
-                "physician_notes": "Prescribed inhaler for sports sessions.",
-                "extraction_confidence": 0.96, "requires_human_review": False, "flagged_fields": []
-            }
+                return {
+                    "document_type": "API_ERROR",
+                    "error_message": f"Gemini API Error: {str(e)}. Available models for this key: {', '.join(available_models)}",
+                    "extraction_confidence": 0.0,
+                    "requires_human_review": True
+                }
         else:
             return {
-                "document_type": "STUDENT_ADMISSION_FORM", "school_name": "VICTORY HIGH SCHOOL",
-                "academic_year": "2026-2027",
-                "student_info": {
-                    "full_name": "Arjun Deshmukh", "dob": "12/04/2010", "gender": "Male",
-                    "blood_group": "O+", "nationality": "Indian", "class_applying_for": "Grade 10-A",
-                    "previous_school": "National Model School", "aadhaar_number": "4521-8890-9901"
-                },
-                "parent_info": {
-                    "father_name": "Rajesh Deshmukh", "father_occupation": "Civil Engineer",
-                    "father_mobile": "+91 76207 99602", "mother_name": "Pooja Deshmukh",
-                    "mother_occupation": "Architect", "mother_mobile": "+91 76207 99603",
-                    "email": "deshmukh.r@example.com"
-                },
-                "address": {"street": "Plot 14, Senapati Bapat Road", "city": "Pune", "state": "Maharashtra", "pin_code": "411016"},
-                "emergency_contact": {"person": "Rajesh Deshmukh", "relationship": "Father", "phone": "+91 76207 99602"},
-                "documents_submitted": ["Birth Certificate", "Aadhaar Card", "Report Card"],
-                "extraction_confidence": 0.96, "requires_human_review": False, "flagged_fields": []
+                "document_type": "SETUP_ERROR",
+                "error_message": "Gemini API Client not initialized. Check GEMINI_API_KEY.",
+                "extraction_confidence": 0.0,
+                "requires_human_review": True
             }
