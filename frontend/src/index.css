@@ -3,6 +3,7 @@
 
 @layer base {
   :root {
+    color-scheme: dark;
     /* DEFAULT THEME: Emerald Forest */
     --bg-color: rgb(3, 28, 21);
     --bg-color: color(display-p3 0.012 0.110 0.082);
@@ -48,6 +49,7 @@
   }
 
   .theme-midnight {
+    color-scheme: dark;
     --bg-color: rgb(6, 9, 17);
     --bg-color: color(display-p3 0.024 0.035 0.067);
     --bg-dots: radial-gradient(rgba(99, 102, 241, 0.06) 1.5px, transparent 1.5px);
@@ -88,6 +90,7 @@
   }
 
   .theme-light {
+    color-scheme: light;
     --bg-color: rgb(248, 250, 252);
     --bg-color: color(display-p3 0.973 0.980 0.988);
     --bg-dots: radial-gradient(rgba(148, 163, 184, 0.18) 1.5px, transparent 1.5px);

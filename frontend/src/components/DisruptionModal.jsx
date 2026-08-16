@@ -30,7 +30,8 @@ export default function DisruptionModal({
             <select
               value={selectedTeacher}
               onChange={(e) => setSelectedTeacher(e.target.value)}
-              className="text-xs rounded-lg p-2 mt-1 outline-none cursor-pointer"
+              className="text-xs rounded-lg p-2 mt-1 outline-none cursor-pointer border border-white/10"
+              style={{ backgroundColor: 'var(--card-bg-solid)', color: 'var(--text-primary)', borderColor: 'var(--panel-border)' }}
             >
               <option value="TCH_101">Mrs. Deepti Bisen (Mathematics)</option>
               <option value="TCH_102">Mr. Rajesh Deshmukh (Science)</option>
