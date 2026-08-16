@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Camera, QrCode, CheckCircle2, Check, CreditCard, AlertTriangle, Loader2 } from 'lucide-react';
+import { Camera, QrCode, CheckCircle2, Check, CreditCard, AlertTriangle, Loader2, Sparkles } from 'lucide-react';
 import StudentIdCardModal from './StudentIdCardModal';
 
 // ─── face-api.js model URL (tiny face detector, ~190KB) ─────────────────────
