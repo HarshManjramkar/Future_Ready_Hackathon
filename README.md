@@ -127,6 +127,7 @@ Explore the comprehensive engineering documentation in the [`docs/`](docs/) dire
 
 | Document | Description |
 |---|---|
+| [**Comprehensive Technical Documentation**](docs/comprehensive-technical-documentation.md) | High-level system overview covering AI, CP-SAT, and Edge architecture |
 | [**Architecture & System Design**](docs/ARCHITECTURE.md) | Component topologies, data flow models, and constraint schemas |
 | [**Production Deployment Blueprint**](docs/deployment.md) | Exhaustive zero-cost, zero-cold-start deployment guide with keep-alive |
 | [**Software Requirements (SRS)**](docs/srs.md) | Functional requirements, system constraints, and interface specs |
