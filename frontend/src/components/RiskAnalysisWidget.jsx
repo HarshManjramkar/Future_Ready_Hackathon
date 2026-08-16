@@ -3,9 +3,9 @@ import { AlertTriangle, ArrowRight, BrainCircuit } from 'lucide-react';
 
 export default function RiskAnalysisWidget({ riskData, setActiveTab }) {
   const riskColor = (level) => {
-    if (level === 'HIGH') return { text: '#f87171', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.2)', bar: '#ef4444' };
-    if (level === 'MEDIUM') return { text: '#fbbf24', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.2)', bar: '#f59e0b' };
-    return { text: '#34d399', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.2)', bar: '#10b981' };
+    if (level === 'HIGH') return { text: 'color(display-p3 0.973 0.443 0.443)', bg: 'color(display-p3 0.937 0.267 0.267 / 0.12)', border: 'color(display-p3 0.937 0.267 0.267 / 0.2)', bar: 'color(display-p3 0.937 0.267 0.267)' };
+    if (level === 'MEDIUM') return { text: 'color(display-p3 0.984 0.749 0.141)', bg: 'color(display-p3 0.961 0.620 0.043 / 0.12)', border: 'color(display-p3 0.961 0.620 0.043 / 0.2)', bar: 'color(display-p3 0.961 0.620 0.043)' };
+    return { text: 'color(display-p3 0.204 0.827 0.600)', bg: 'color(display-p3 0.063 0.725 0.506 / 0.12)', border: 'color(display-p3 0.063 0.725 0.506 / 0.2)', bar: 'color(display-p3 0.063 0.725 0.506)' };
   };
 
   return (

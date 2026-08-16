@@ -77,7 +77,7 @@ export default function SmartStaffing() {
 
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                   dept.status === 'HIGH_LOAD' 
-                    ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.2)]' 
+                    ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-[0_0_10px_color(display-p3 0.976 0.451 0.086 / 0.2)]' 
                     : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                 }`}>
                   {dept.status}
@@ -101,24 +101,24 @@ export default function SmartStaffing() {
               <AreaChart data={historicalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorMath" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="color(display-p3 0.976 0.451 0.086)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="color(display-p3 0.976 0.451 0.086)" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorScience" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="color(display-p3 0.055 0.647 0.914)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="color(display-p3 0.055 0.647 0.914)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="month" stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="color(display-p3 1.000 1.000 1.000 / 0.05)" vertical={false} />
+                <XAxis dataKey="month" stroke="color(display-p3 1.000 1.000 1.000 / 0.3)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="color(display-p3 1.000 1.000 1.000 / 0.3)" fontSize={12} tickLine={false} axisLine={false} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', backdropFilter: 'blur(8px)' }}
+                  contentStyle={{ backgroundColor: 'color(display-p3 0.059 0.090 0.165 / 0.9)', border: '1px solid color(display-p3 1.000 1.000 1.000 / 0.1)', borderRadius: '8px', backdropFilter: 'blur(8px)' }}
                   itemStyle={{ fontSize: '13px' }}
-                  labelStyle={{ color: 'rgba(255,255,255,0.5)', marginBottom: '4px', fontSize: '12px' }}
+                  labelStyle={{ color: 'color(display-p3 1.000 1.000 1.000 / 0.5)', marginBottom: '4px', fontSize: '12px' }}
                 />
-                <Area type="monotone" dataKey="Mathematics" stroke="#f97316" strokeWidth={3} fillOpacity={1} fill="url(#colorMath)" />
-                <Area type="monotone" dataKey="Science" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorScience)" />
+                <Area type="monotone" dataKey="Mathematics" stroke="color(display-p3 0.976 0.451 0.086)" strokeWidth={3} fillOpacity={1} fill="url(#colorMath)" />
+                <Area type="monotone" dataKey="Science" stroke="color(display-p3 0.055 0.647 0.914)" strokeWidth={3} fillOpacity={1} fill="url(#colorScience)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

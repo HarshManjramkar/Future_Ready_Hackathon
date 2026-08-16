@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Landmark, ShieldCheck, QrCode, Download, Printer, X, Sparkles, Check } from 'lucide-react';
+import PrintStudio from './PrintStudio';
 
 export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showPrintStudio, setShowPrintStudio] = useState(false);
 
   if (!isOpen) return null;
 
@@ -19,43 +21,18 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrPayload)}`;
 
   const handlePrint = () => {
-    window.print();
+    setShowPrintStudio(true);
   };
 
   return (
     <>
-    <style>{`
-      @media print {
-        body * {
-          visibility: hidden !important;
-        }
-        #printable-id-card, #printable-id-card * {
-          visibility: visible !important;
-        }
-        #printable-id-card {
-          position: absolute !important;
-          left: 0 !important;
-          top: 0 !important;
-          width: 100% !important;
-          max-width: 400px !important;
-          margin: 0 !important;
-          box-shadow: none !important;
-          border: 2px solid #000 !important;
-          background: white !important;
-          color: black !important;
-        }
-        /* Hide backgrounds and gradients for printing */
-        #printable-id-card .bg-gradient-to-b {
-          background: white !important;
-        }
-        #printable-id-card .text-white {
-          color: black !important;
-        }
-        #printable-id-card .text-amber-400 {
-          color: #b45309 !important;
-        }
-      }
-    `}</style>
+    <PrintStudio 
+      isOpen={showPrintStudio} 
+      onClose={() => setShowPrintStudio(false)} 
+      type="idcard" 
+      payload={{ cards: [currentStudent] }} 
+    />
+
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200 print:bg-white print:p-0">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
         {/* Modal Header */}
@@ -114,7 +91,7 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
           {/* Right Side: High-Tech Printable Holographic Badge Preview (7 Cols) */}
           <div className="md:col-span-7 flex flex-col items-center justify-center space-y-5 print:m-0 print:p-0">
             {/* Holographic ID Badge Container */}
-            <div id="printable-id-card" className="w-full max-w-sm bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden space-y-5">
+            <div id="printable-id-card" className="w-full max-w-sm bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-[0_0_40px_color(display-p3 0.961 0.620 0.043 / 0.15)] relative overflow-hidden space-y-5">
               {/* Badge Gold Crest Header */}
               <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
                 <div className="flex items-center gap-2.5">
@@ -167,7 +144,7 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
                 className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg cursor-pointer transition"
               >
                 <Printer className="w-4 h-4" />
-                <span>Print Student Card</span>
+                <span>Download Digital Id</span>
               </button>
               <a
                 href={qrImageUrl}

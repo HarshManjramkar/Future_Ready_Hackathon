@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Play, Sparkles, Zap, Printer } from 'lucide-react';
 import DisruptionModal from './DisruptionModal';
 import TimetableGrid from './TimetableGrid';
+import PrintStudio from './PrintStudio';
 
 export default function ReactiveTimetable() {
   const [schedule, setSchedule] = useState([]);
   const [selectedTeacher, setSelectedTeacher] = useState('TCH_101');
   const [solvingDisruption, setSolvingDisruption] = useState(false);
   const [disruptionResult, setDisruptionResult] = useState(null);
+  const [showPrintStudio, setShowPrintStudio] = useState(false);
 
   useEffect(() => {
     fetchSchedule();
@@ -80,6 +82,13 @@ export default function ReactiveTimetable() {
         applyReassignments={applyReassignments}
       />
 
+      <PrintStudio 
+        isOpen={showPrintStudio} 
+        onClose={() => setShowPrintStudio(false)} 
+        type="timetable" 
+        payload={{ schedule, days, periods }} 
+      />
+
       {/* Quick Judge Testing Guide */}
       <div className="p-4 rounded-2xl glass-panel space-y-2">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-500">
@@ -112,11 +121,11 @@ export default function ReactiveTimetable() {
         </div>
         
         <button 
-          onClick={() => window.print()}
-          className="print:hidden flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-lg shadow-sm border border-slate-700 transition-all active:scale-95"
+          onClick={() => setShowPrintStudio(true)}
+          className="print:hidden flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white rounded-lg shadow-lg shadow-sky-900/20 font-semibold transition-all active:scale-95 border border-sky-400/30"
         >
           <Printer className="w-4 h-4" />
-          <span className="text-sm font-semibold">Export PDF</span>
+          <span className="text-sm">Download Timetable</span>
         </button>
       </div>
 

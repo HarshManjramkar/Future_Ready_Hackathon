@@ -29,7 +29,7 @@ export default function Sidebar({ activeTab, setActiveTab, unreviewedCount }) {
         <div className="px-1 py-5 mb-6 border-b" style={{ borderColor: 'var(--panel-border)' }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-2xl flex items-center justify-center shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #10b981 0%, #6366f1 100%)' }}>
+              style={{ background: 'linear-gradient(135deg, color(display-p3 0.063 0.725 0.506) 0%, color(display-p3 0.388 0.400 0.945) 100%)' }}>
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -60,10 +60,10 @@ export default function Sidebar({ activeTab, setActiveTab, unreviewedCount }) {
                 className={`relative w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-xs transition-all duration-150 cursor-pointer animate-fade-up`}
                 style={{
                   animationDelay: `${i * 0.06}s`,
-                  background: isActive ? 'rgba(16,185,129,0.12)' : 'transparent',
+                  background: isActive ? 'color(display-p3 0.063 0.725 0.506 / 0.12)' : 'transparent',
                   color: isActive ? 'var(--accent-color)' : 'var(--sidebar-text)',
                 }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'color(display-p3 1.000 1.000 1.000 / 0.04)'; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
               >
                 {/* Active left bar */}
@@ -79,10 +79,10 @@ export default function Sidebar({ activeTab, setActiveTab, unreviewedCount }) {
                 {item.tag && (
                   <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
                     style={{
-                      background: isActive ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)',
+                      background: isActive ? 'color(display-p3 0.063 0.725 0.506 / 0.2)' : 'color(display-p3 1.000 1.000 1.000 / 0.05)',
                       color: isActive ? 'var(--accent-color)' : 'var(--sidebar-text)',
                       fontFamily: 'var(--font-mono)',
-                      border: '1px solid rgba(255,255,255,0.06)'
+                      border: '1px solid color(display-p3 1.000 1.000 1.000 / 0.06)'
                     }}>
                     {item.tag}
                   </span>
