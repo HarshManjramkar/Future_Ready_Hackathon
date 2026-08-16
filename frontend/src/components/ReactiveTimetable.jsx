@@ -17,7 +17,7 @@ export default function ReactiveTimetable() {
 
   const fetchSchedule = async () => {
     try {
-      const res = await fetch('/api/timetable/generate');
+      const res = await fetch(`/api/timetable/generate?t=${Date.now()}`);
       const data = await res.json();
       setSchedule(data.schedule || []);
     } catch (err) {
