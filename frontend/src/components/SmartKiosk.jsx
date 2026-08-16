@@ -401,12 +401,7 @@ export default function SmartKiosk() {
         </div>
       </div>
 
-      {/* ── HUD: top-right ── */}
       <div className="absolute top-5 right-5 md:top-7 md:right-7 flex flex-col items-end gap-2.5 pointer-events-auto" style={{ zIndex: 20 }}>
-        <button onClick={() => setIsIdModalOpen(true)}
-          className="animate-pulse px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/50 font-bold text-xs flex items-center gap-2 backdrop-blur-lg transition-all hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-          <CreditCard className="w-4 h-4" /><span>Get Demo ID Cards</span>
-        </button>
 
         <div className="px-4 py-3 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/8 shadow-xl flex items-center gap-3.5">
           <div className="text-right">
@@ -432,6 +427,21 @@ export default function SmartKiosk() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* ── Judges' Testing Kiosk Box: bottom-right ── */}
+      <div className="absolute bottom-5 right-5 md:bottom-7 md:right-7 flex flex-col gap-3 pointer-events-auto bg-black/60 backdrop-blur-xl border border-emerald-500/30 p-4 rounded-2xl shadow-2xl" style={{ zIndex: 20, width: '280px' }}>
+        <div className="flex items-center gap-2 mb-1">
+          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <h3 className="text-white font-bold text-xs uppercase tracking-wider">Judges' Test Kit</h3>
+        </div>
+        <p className="text-white/60 text-[10px] leading-relaxed">
+          Test the Anti-Proxy Face & QR matching system in real-time. Click below to generate sample digital ID cards for this demo.
+        </p>
+        <button onClick={() => setIsIdModalOpen(true)}
+          className="mt-2 animate-pulse w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/50 font-bold text-xs flex justify-center items-center gap-2 transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(16,185,129,0.2)] cursor-pointer">
+          <CreditCard className="w-4 h-4" /><span>Generate Demo ID Cards</span>
+        </button>
       </div>
 
       {/* ── Model loading / failed indicator (very subtle, bottom center) ── */}
