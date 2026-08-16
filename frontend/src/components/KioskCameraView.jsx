@@ -31,8 +31,8 @@ export default function KioskCameraView({
 
       {/* Video Frame with Face Bounding Box & Green Flash */}
       <div className={`relative rounded-2xl overflow-hidden aspect-video bg-slate-950 flex items-center justify-center border-2 transition-all ${
-        greenFlash ? 'border-emerald-400 shadow-[0_0_40px_color(display-p3 0.063 0.725 0.506 / 0.5)]' :
-        scanResult?.status === 'REJECTED' ? 'border-rose-500 shadow-[0_0_40px_color(display-p3 0.937 0.267 0.267 / 0.5)]' : 'border-sky-500/20'
+        greenFlash ? 'border-emerald-400 shadow-[0_0_40px_rgba(16, 185, 129, 0.5)]' :
+        scanResult?.status === 'REJECTED' ? 'border-rose-500 shadow-[0_0_40px_rgba(239, 68, 68, 0.5)]' : 'border-sky-500/20'
       }`}>
         {/* Live Video Feed */}
         <video 
@@ -59,7 +59,7 @@ export default function KioskCameraView({
         {/* Live Detected Face Box */}
         {(faceDetected || manualFaceToggle) && (
           <div
-            className="absolute border-2 border-emerald-400 rounded-xl pointer-events-none transition-all duration-75 shadow-[0_0_15px_color(display-p3 0.063 0.725 0.506 / 0.6)]"
+            className="absolute border-2 border-emerald-400 rounded-xl pointer-events-none transition-all duration-75 shadow-[0_0_15px_rgba(16, 185, 129, 0.6)]"
             style={faceRect ? {
               left: `${(1 - faceRect.x - faceRect.width) * 100}%`,
               top: `${faceRect.y * 100}%`,

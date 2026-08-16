@@ -83,7 +83,7 @@ export default function IntroScreen({ onComplete }) {
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(16, 185, 129, ${p.alpha})`;
         ctx.shadowBlur = 10;
-        ctx.shadowColor = 'color(display-p3 0.063 0.725 0.506)';
+        ctx.shadowColor = 'rgb(16, 185, 129)';
         ctx.fill();
       });
 

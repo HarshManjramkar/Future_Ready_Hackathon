@@ -181,7 +181,7 @@ export default function SmartKiosk() {
       const data = await res.json();
       if (data.status === 'SUCCESS' || data.student) {
         setStep(3);
-        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 }, colors: ['color(display-p3 0.063 0.725 0.506)', 'color(display-p3 0.204 0.827 0.600)', 'color(display-p3 1.000 1.000 1.000)'] });
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 }, colors: ['rgb(16, 185, 129)', 'rgb(52, 211, 153)', 'rgb(255, 255, 255)'] });
         const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         setRecentLogs(prev => [{ name: s?.name, id: cid, time: t, avatar: s?.avatar }, ...prev.slice(0, 4)]);
         fetchStudents();
@@ -220,9 +220,9 @@ export default function SmartKiosk() {
         style={{
           zIndex: 1,
           background:
-            step === 3 ? 'radial-gradient(ellipse 100% 80% at 50% 50%, color(display-p3 0.063 0.725 0.506 / 0.22) 0%, transparent 70%)' :
-            step === 2 ? 'radial-gradient(ellipse 100% 80% at 50% 50%, color(display-p3 0.220 0.741 0.973 / 0.08) 0%, transparent 70%)' :
-            'radial-gradient(ellipse 80% 80% at 50% 110%, color(display-p3 0.000 0.000 0.000 / 0.85) 0%, color(display-p3 0.000 0.000 0.000 / 0.4) 55%, transparent 100%)',
+            step === 3 ? 'radial-gradient(ellipse 100% 80% at 50% 50%, rgba(16, 185, 129, 0.22) 0%, transparent 70%)' :
+            step === 2 ? 'radial-gradient(ellipse 100% 80% at 50% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 70%)' :
+            'radial-gradient(ellipse 80% 80% at 50% 110%, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 55%, transparent 100%)',
         }} />
 
       {/* ── Central overlay — all step UX lives here ── */}
@@ -247,7 +247,7 @@ export default function SmartKiosk() {
             {/* Scan laser */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute inset-x-4 h-px bg-gradient-to-r from-transparent via-emerald-400/90 to-transparent"
-                style={{ animation: 'laser 2.2s ease-in-out infinite alternate', filter: 'drop-shadow(0 0 4px color(display-p3 0.063 0.725 0.506))' }} />
+                style={{ animation: 'laser 2.2s ease-in-out infinite alternate', filter: 'drop-shadow(0 0 4px rgb(16, 185, 129))' }} />
             </div>
             {/* Centre icon */}
             <QrCode className="w-10 h-10 text-white/15" strokeWidth={1} />
@@ -277,20 +277,20 @@ export default function SmartKiosk() {
               {/* Track circle */}
               <circle cx="200" cy="200" r="180"
                 fill="none"
-                stroke="color(display-p3 1.000 1.000 1.000 / 0.08)"
+                stroke="rgba(255, 255, 255, 0.08)"
                 strokeWidth="2"
               />
               {/* Progress arc */}
               <circle cx="200" cy="200" r="180"
                 fill="none"
-                stroke={faceDetected ? 'color(display-p3 0.220 0.741 0.973)' : 'color(display-p3 1.000 1.000 1.000 / 0.18)'}
+                stroke={faceDetected ? 'rgb(56, 189, 248)' : 'rgba(255, 255, 255, 0.18)'}
                 strokeWidth={faceDetected ? '3.5' : '1.5'}
                 strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 180}`}
                 strokeDashoffset={`${2 * Math.PI * 180 * (1 - faceProgress / 100)}`}
                 style={{
                   transition: 'stroke-dashoffset 0.12s linear, stroke 0.4s ease, stroke-width 0.4s ease',
-                  filter: faceDetected && faceProgress > 10 ? 'drop-shadow(0 0 8px color(display-p3 0.220 0.741 0.973 / 0.8))' : 'none',
+                  filter: faceDetected && faceProgress > 10 ? 'drop-shadow(0 0 8px rgba(56, 189, 248, 0.8))' : 'none',
                 }}
               />
               {/* 4 subtle dots at cardinal points — very Face ID */}
@@ -301,7 +301,7 @@ export default function SmartKiosk() {
                     cx={200 + 180 * Math.sin(rad)}
                     cy={200 - 180 * Math.cos(rad)}
                     r="4"
-                    fill={faceDetected ? 'color(display-p3 0.220 0.741 0.973)' : 'color(display-p3 1.000 1.000 1.000 / 0.25)'}
+                    fill={faceDetected ? 'rgb(56, 189, 248)' : 'rgba(255, 255, 255, 0.25)'}
                     style={{ transition: 'fill 0.4s ease' }}
                   />
                 );
@@ -321,7 +321,7 @@ export default function SmartKiosk() {
               {faceDetected && faceProgress > 0 && (
                 <div className="absolute flex flex-col items-center"
                   style={{ animation: 'fadeIn 0.3s ease' }}>
-                  <span className="text-5xl font-black text-white tabular-nums" style={{ textShadow: '0 4px 20px color(display-p3 0.000 0.000 0.000 / 0.5)' }}>
+                  <span className="text-5xl font-black text-white tabular-nums" style={{ textShadow: '0 4px 20px rgba(0, 0, 0, 0.5)' }}>
                     {faceProgress}<span className="text-2xl text-white/50">%</span>
                   </span>
                 </div>
@@ -350,10 +350,10 @@ export default function SmartKiosk() {
           <div className="relative w-28 h-28">
             <svg width="112" height="112" viewBox="0 0 112 112" className="absolute inset-0"
               style={{ transform: 'rotate(-90deg)' }}>
-              <circle cx="56" cy="56" r="52" fill="none" stroke="color(display-p3 0.063 0.725 0.506 / 0.3)" strokeWidth="2" />
-              <circle cx="56" cy="56" r="52" fill="none" stroke="color(display-p3 0.063 0.725 0.506)" strokeWidth="2.5"
+              <circle cx="56" cy="56" r="52" fill="none" stroke="rgba(16, 185, 129, 0.3)" strokeWidth="2" />
+              <circle cx="56" cy="56" r="52" fill="none" stroke="rgb(16, 185, 129)" strokeWidth="2.5"
                 strokeLinecap="round"
-                style={{ filter: 'drop-shadow(0 0 8px color(display-p3 0.063 0.725 0.506 / 0.8))' }} />
+                style={{ filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.8))' }} />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <Check className="w-10 h-10 text-emerald-400" strokeWidth={2.5} />
@@ -439,7 +439,7 @@ export default function SmartKiosk() {
           Test the Anti-Proxy Face & QR matching system in real-time. Click below to generate sample digital ID cards for this demo.
         </p>
         <button onClick={() => setIsIdModalOpen(true)}
-          className="mt-2 animate-pulse w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/50 font-bold text-xs flex justify-center items-center gap-2 transition-all hover:scale-[1.02] shadow-[0_0_15px_color(display-p3 0.063 0.725 0.506 / 0.2)] cursor-pointer">
+          className="mt-2 animate-pulse w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/50 font-bold text-xs flex justify-center items-center gap-2 transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(16, 185, 129, 0.2)] cursor-pointer">
           <CreditCard className="w-4 h-4" /><span>Generate Demo ID Cards</span>
         </button>
       </div>

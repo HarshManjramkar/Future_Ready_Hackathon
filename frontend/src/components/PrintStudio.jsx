@@ -96,7 +96,7 @@ export default function PrintStudio({ isOpen, onClose, type, payload }) {
           <PDFDownloadLink
             document={renderDocument()}
             fileName={type === 'timetable' ? 'Pristine_Timetable.pdf' : 'Pristine_ID_Cards.pdf'}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-sky-500 hover:bg-sky-400 text-white rounded-xl shadow-[0_0_20px_color(display-p3 0.055 0.647 0.914 / 0.3)] hover:shadow-[0_0_25px_color(display-p3 0.055 0.647 0.914 / 0.5)] font-semibold transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-sky-500 hover:bg-sky-400 text-white rounded-xl shadow-[0_0_20px_rgba(14, 165, 233, 0.3)] hover:shadow-[0_0_25px_rgba(14, 165, 233, 0.5)] font-semibold transition-all active:scale-95"
           >
             {({ loading }) =>
               loading ? (

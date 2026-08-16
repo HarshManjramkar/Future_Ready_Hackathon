@@ -11,9 +11,9 @@ export default function Header({
   setActiveTheme
 }) {
   const themes = [
-    { id: 'emerald', name: 'Emerald', dot: 'color(display-p3 0.063 0.725 0.506)' },
-    { id: 'midnight', name: 'Midnight', dot: 'color(display-p3 0.388 0.400 0.945)' },
-    { id: 'light', name: 'Light', dot: 'color(display-p3 0.796 0.835 0.882)' }
+    { id: 'emerald', name: 'Emerald', dot: 'rgb(16, 185, 129)' },
+    { id: 'midnight', name: 'Midnight', dot: 'rgb(99, 102, 241)' },
+    { id: 'light', name: 'Light', dot: 'rgb(203, 213, 225)' }
   ];
 
   return (
@@ -65,9 +65,9 @@ export default function Header({
           <button 
             onClick={onResetDemo}
             className="px-3 py-1.5 rounded-xl font-bold transition cursor-pointer text-xs flex items-center gap-1.5"
-            style={{ background: 'color(display-p3 1.000 1.000 1.000 / 0.05)', color: 'var(--text-secondary)', border: '1px solid var(--panel-border)' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'color(display-p3 1.000 1.000 1.000 / 0.09)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'color(display-p3 1.000 1.000 1.000 / 0.05)'}
+            style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', border: '1px solid var(--panel-border)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.09)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
           >
             <RefreshCw className="w-3 h-3" /> Reset
           </button>
@@ -83,7 +83,7 @@ export default function Header({
               <span style={{ fontFamily: 'var(--font-body)' }}>Search...</span>
             </div>
             <kbd className="hidden md:inline-block px-1.5 py-0.5 rounded-lg text-[9px]"
-              style={{ background: 'color(display-p3 1.000 1.000 1.000 / 0.06)', color: 'var(--text-secondary)', border: '1px solid var(--panel-border)', fontFamily: 'var(--font-mono)' }}>
+              style={{ background: 'rgba(255, 255, 255, 0.06)', color: 'var(--text-secondary)', border: '1px solid var(--panel-border)', fontFamily: 'var(--font-mono)' }}>
               ⌘K
             </kbd>
           </button>

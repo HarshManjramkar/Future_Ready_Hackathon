@@ -91,7 +91,7 @@ export default function StudentIdCardModal({ isOpen, onClose, students = [] }) {
           {/* Right Side: High-Tech Printable Holographic Badge Preview (7 Cols) */}
           <div className="md:col-span-7 flex flex-col items-center justify-center space-y-5 print:m-0 print:p-0">
             {/* Holographic ID Badge Container */}
-            <div id="printable-id-card" className="w-full max-w-sm bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-[0_0_40px_color(display-p3 0.961 0.620 0.043 / 0.15)] relative overflow-hidden space-y-5">
+            <div id="printable-id-card" className="w-full max-w-sm bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-[0_0_40px_rgba(245, 158, 11, 0.15)] relative overflow-hidden space-y-5">
               {/* Badge Gold Crest Header */}
               <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
                 <div className="flex items-center gap-2.5">
