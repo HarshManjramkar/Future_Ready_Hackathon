@@ -71,9 +71,11 @@ class TestNFRAdversarialPerf(unittest.TestCase):
         
         req = api_app.VerificationRequest(
             index=0,
-            student_info={"full_name": "<script>alert('pwn')</script>", "aadhaar_number": "9999-8888-7777"},
-            parent_info={"father_mobile": "'+DROP TABLE STUDENTS;--"},
-            address={"city": "Pune \u2603\u2728"}
+            verified_data={
+                "student_info": {"full_name": "<script>alert('pwn')</script>", "aadhaar_number": "9999-8888-7777"},
+                "parent_info": {"father_mobile": "'+DROP TABLE STUDENTS;--"},
+                "address": {"city": "Pune \u2603\u2728"}
+            }
         )
         res = api_app.verify_document(req)
         self.assertEqual(res["status"], "SUCCESS")

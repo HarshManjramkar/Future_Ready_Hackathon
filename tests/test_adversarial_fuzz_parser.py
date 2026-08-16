@@ -26,6 +26,8 @@ class TestAdversarialFuzzParser(unittest.TestCase):
 
     def test_adversarial_polyglot_and_corrupt_byte_streams(self):
         """Adversarial: Fuzz parser with corrupted headers, HTML polyglots, and binary junk."""
+        if self.parser.client is None:
+            self.skipTest("Gemini API Client not initialized")
         corrupted_payloads = [
             b"",                                          # 0-byte empty file
             b"GIF89a\x00\x00\x00\x00",                    # Fake GIF header with nulls
@@ -59,6 +61,8 @@ class TestAdversarialFuzzParser(unittest.TestCase):
 
     def test_confidence_threshold_routing_invariants(self):
         """Verify confidence boundary routing invariants across edge-case presets."""
+        if self.parser.client is None:
+            self.skipTest("Gemini API Client not initialized")
         clean_res = self.parser.parse_image_bytes(b"clean", filename="clean.jpg")
         self.assertFalse(clean_res.get("requires_human_review", False))
         self.assertGreaterEqual(clean_res.get("extraction_confidence", 0), 0.80)

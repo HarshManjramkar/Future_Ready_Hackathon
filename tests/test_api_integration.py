@@ -115,9 +115,11 @@ class TestAPIIntegration(unittest.TestCase):
         # Verify valid index commit
         req = api_app.VerificationRequest(
             index=0,
-            student_info={"full_name": "Aarav Sharma", "aadhaar_number": "1234-5678-9999", "class_applying_for": "Grade 10-A"},
-            parent_info={"father_mobile": "+91 9876543210"},
-            address={"city": "Pune"}
+            verified_data={
+                "student_info": {"full_name": "Aarav Sharma", "aadhaar_number": "1234-5678-9999", "class_applying_for": "Grade 10-A"},
+                "parent_info": {"father_mobile": "+91 9876543210"},
+                "address": {"city": "Pune"}
+            }
         )
         res = api_app.verify_document(req)
         self.assertEqual(res["status"], "SUCCESS")
@@ -126,7 +128,7 @@ class TestAPIIntegration(unittest.TestCase):
 
     def test_verify_document_invalid_index_rejection(self):
         """Verify verification with out-of-bounds index raises 400."""
-        req = api_app.VerificationRequest(index=99, student_info={}, parent_info={}, address={})
+        req = api_app.VerificationRequest(index=99, verified_data={"student_info": {}, "parent_info": {}, "address": {}})
         with self.assertRaises(Exception):
             api_app.verify_document(req)
 

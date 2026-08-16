@@ -52,7 +52,7 @@ class TestAPIBoundaryFuzz(unittest.TestCase):
         """Boundary: Fuzz document verification with negative, zero, and huge out-of-range indices."""
         fuzzed_indices = [-1, -999, 0, 1, 99999, 2**31 - 1]
         for idx in fuzzed_indices:
-            req = api_app.VerificationRequest(index=idx, student_info={}, parent_info={}, address={})
+            req = api_app.VerificationRequest(index=idx, verified_data={"student_info": {}, "parent_info": {}, "address": {}})
             # Should safely raise HTTPException if unreviewed inbox is empty or out-of-range
             with self.assertRaises(Exception):
                 api_app.verify_document(req)
@@ -71,8 +71,10 @@ class TestAPIBoundaryFuzz(unittest.TestCase):
             })
             req = api_app.VerificationRequest(
                 index=0,
-                student_info={"full_name": f"Student {i}", "aadhaar_number": f"1234-5678-{i:04d}"},
-                parent_info={}, address={}
+                verified_data={
+                    "student_info": {"full_name": f"Student {i}", "aadhaar_number": f"1234-5678-{i:04d}"},
+                    "parent_info": {}, "address": {}
+                }
             )
             api_app.verify_document(req)
 
@@ -89,9 +91,11 @@ class TestAPIBoundaryFuzz(unittest.TestCase):
         api_app.UNREVIEWED_DOCUMENTS.append({"document_type": "STUDENT_ADMISSION_FORM"})
         req = api_app.VerificationRequest(
             index=0,
-            student_info={"full_name": "  <img src=x onerror=alert(1)> Devang \u2728  ", "aadhaar_number": "1234-5678-9999"},
-            parent_info={"father_mobile": "+91 99999 11111"},
-            address={"city": "Pune"}
+            verified_data={
+                "student_info": {"full_name": "  <img src=x onerror=alert(1)> Devang \u2728  ", "aadhaar_number": "1234-5678-9999"},
+                "parent_info": {"father_mobile": "+91 99999 11111"},
+                "address": {"city": "Pune"}
+            }
         )
         res = api_app.verify_document(req)
         self.assertEqual(res["status"], "SUCCESS")
