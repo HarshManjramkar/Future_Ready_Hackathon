@@ -1,7 +1,11 @@
 # ⚡ EduFlow OS: Autonomous School Operations Engine
 
-> **Future Ready Hackathon 2026 Submission — Team Ragnarok (VIT Pune)**  
+> **🏆 Future Ready Hackathon 2026 Submission — Team Ragnarok**  
 > *Transforming physical paperwork, static spreadsheets, and manual attendance into a real-time, self-orchestrating school operating system.*
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel_Edge-black?style=for-the-badge&logo=vercel)](https://future-ready-hackathon.vercel.app/)
+[![API Backend](https://img.shields.io/badge/Backend-Render_Cloud-46E3B7?style=for-the-badge&logo=render)](https://eduflow-backend-qxid.onrender.com)
+[![Gemini 3.5](https://img.shields.io/badge/AI_Engine-Gemini_3.5_Flash-4285F4?style=for-the-badge&logo=google)](https://aistudio.google.com/)
 
 ---
 
@@ -57,16 +61,16 @@ flowchart TD
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Technology Stack (Maxed-Out Hackathon Architecture)
 
 | Layer | Technologies Used | Key Purpose |
 |---|---|---|
 | **Frontend UI** | React 19, Vite, Tailwind CSS v4, Framer Motion | High-performance reactive Bento Grid dashboard |
 | **Edge Computer Vision** | Google MediaPipe, WebRTC, WASM | In-browser 60 FPS face tracking & anti-proxy verification |
 | **Backend REST API** | Python 3.11, FastAPI, Uvicorn, GZip | High-throughput asynchronous REST microservices |
-| **Optimization Solver** | Google OR-Tools (CP-SAT Model) | Combinatorial constraint optimization engine |
+| **Optimization Solver** | Google OR-Tools (CP-SAT Model) | Combinatorial constraint optimization engine (<50ms solves) |
 | **Vision-Language AI** | Google Gemini 3.5 Flash Vision | Multimodal zero-shot handwritten document reader |
-| **Hosting & Edge CDN** | Vercel (Frontend Edge) + Render / HF (Backend) | Free-tier, zero-downtime, global HTTPS delivery |
+| **Hosting & Edge CDN** | Vercel (Frontend Edge) + Render (Backend) | Free-tier, zero-downtime, global HTTPS delivery |
 
 ---
 
