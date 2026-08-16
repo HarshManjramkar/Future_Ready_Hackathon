@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap } from 'lucide-react';
+import { Play, Sparkles, Zap, Printer } from 'lucide-react';
 import DisruptionModal from './DisruptionModal';
 import TimetableGrid from './TimetableGrid';
 
@@ -101,8 +101,28 @@ export default function ReactiveTimetable() {
           </div>
         </div>
       </div>
+      
+      {/* Timetable Header & Export */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl font-extrabold print:text-slate-900" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
+            Master Live Timetable
+          </h2>
+          <p className="text-sm print:text-slate-600" style={{ color: 'var(--text-secondary)' }}>Dynamically synchronized with the CP-SAT engine.</p>
+        </div>
+        
+        <button 
+          onClick={() => window.print()}
+          className="print:hidden flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-lg shadow-sm border border-slate-700 transition-all active:scale-95"
+        >
+          <Printer className="w-4 h-4" />
+          <span className="text-sm font-semibold">Export PDF</span>
+        </button>
+      </div>
 
-      <TimetableGrid schedule={schedule} days={days} periods={periods} />
+      <div className="print:block">
+        <TimetableGrid schedule={schedule} days={days} periods={periods} />
+      </div>
     </div>
   );
 }
