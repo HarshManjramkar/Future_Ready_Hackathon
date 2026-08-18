@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
+import jsQR from 'jsqr';
 import { Camera, QrCode, CheckCircle2, Check, CreditCard, AlertTriangle, Loader2, Sparkles } from 'lucide-react';
 import StudentIdCardModal from './StudentIdCardModal';
 
@@ -35,8 +36,6 @@ export default function SmartKiosk() {
 
   useEffect(() => {
     fetchStudents();
-    if (!('BarcodeDetector' in window)) { setCameraStatus('UNSUPPORTED'); return; }
-    qrDetRef.current = new BarcodeDetector({ formats: ['qr_code'] });
 
     // Load face-api TinyFaceDetector weights
     (async () => {
@@ -84,15 +83,24 @@ export default function SmartKiosk() {
 
   const _startQrLoop = () => {
     let last = 0;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    
     const loop = async (ts) => {
       qrRafRef.current = requestAnimationFrame(loop);
       if (ts - last < 120 || isProcessing.current) return;
       last = ts;
       const v = videoRef.current;
-      if (!v || !qrDetRef.current || (v.readyState ?? 0) < 2) return;
+      if (!v || (v.readyState ?? 0) < 2) return;
       try {
-        const hits = await qrDetRef.current.detect(v);
-        if (hits.length) _handleQr(hits[0].rawValue);
+        canvas.width = v.videoWidth;
+        canvas.height = v.videoHeight;
+        ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+        if (code && code.data) {
+          _handleQr(code.data);
+        }
       } catch (_) {}
     };
     qrRafRef.current = requestAnimationFrame(loop);
