@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Sparkles, Zap, Printer } from 'lucide-react';
+import { Play, Sparkles, Zap, Printer, Loader2 } from 'lucide-react';
 import DisruptionModal from './DisruptionModal';
 import TimetableGrid from './TimetableGrid';
 import PrintStudio from './PrintStudio';
 
 export default function ReactiveTimetable() {
   const [schedule, setSchedule] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTeacher, setSelectedTeacher] = useState('TCH_101');
   const [solvingDisruption, setSolvingDisruption] = useState(false);
   const [disruptionResult, setDisruptionResult] = useState(null);
@@ -16,12 +17,15 @@ export default function ReactiveTimetable() {
   }, []);
 
   const fetchSchedule = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(`/api/timetable/generate?t=${Date.now()}`);
       const data = await res.json();
       setSchedule(data.schedule || []);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -129,7 +133,14 @@ export default function ReactiveTimetable() {
         </button>
       </div>
 
-      <div className="print:block">
+      <div className="print:block relative min-h-[400px]">
+        {isLoading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--panel-bg)]/80 backdrop-blur-md z-10 rounded-2xl border border-[var(--panel-border)]">
+            <Loader2 className="w-10 h-10 animate-spin text-[var(--accent-color)] mb-4" />
+            <p className="text-sm font-bold tracking-widest uppercase text-[var(--accent-color)] font-mono">Cold Starting OR-Tools Solver...</p>
+            <p className="text-xs mt-2 text-[var(--text-secondary)]">Generating constraints for 100% collision-free schedule.</p>
+          </div>
+        )}
         <TimetableGrid schedule={schedule} days={days} periods={periods} />
       </div>
     </div>

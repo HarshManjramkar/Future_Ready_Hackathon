@@ -12,7 +12,7 @@ solver_engine = TimetableSolver(TEACHERS, ROOMS, COHORTS, SUBJECTS)
 doc_parser = DocumentParser()
 
 # In-memory reactive state
-CURRENT_SCHEDULE: Dict[str, Any] = solver_engine.generate_full_schedule()
+CURRENT_SCHEDULE: Dict[str, Any] = {}
 ATTENDANCE_LOGS: List[Dict[str, Any]] = [deepcopy(s) for s in STUDENTS]
 UNREVIEWED_DOCUMENTS: List[Dict[str, Any]] = []
 
