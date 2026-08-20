@@ -62,14 +62,14 @@ def get_dashboard_stats():
 
 @app.get("/api/timetable/generate")
 def get_full_timetable():
-    global CURRENT_SCHEDULE
     if not CURRENT_SCHEDULE or CURRENT_SCHEDULE.get("status") not in ["SUCCESS", "HEURISTIC_SUCCESS"]:
-        CURRENT_SCHEDULE = solver_engine.generate_full_schedule()
+        fresh = solver_engine.generate_full_schedule()
+        CURRENT_SCHEDULE.clear()
+        CURRENT_SCHEDULE.update(fresh)
     return CURRENT_SCHEDULE
 
 @app.post("/api/timetable/disruption")
 def resolve_disruption(req: DisruptionRequest):
-    global CURRENT_SCHEDULE
     schedule_data = CURRENT_SCHEDULE.get("schedule", [])
     resolution = solver_engine.resolve_teacher_absence(req.teacher_id, req.day, schedule_data)
     for slot in schedule_data:
@@ -89,8 +89,9 @@ def reset_demo_state():
 
 @app.post("/api/demo/mass-absence")
 def simulate_mass_absence():
-    global CURRENT_SCHEDULE
-    CURRENT_SCHEDULE = solver_engine.generate_full_schedule()
+    fresh = solver_engine.generate_full_schedule()
+    CURRENT_SCHEDULE.clear()
+    CURRENT_SCHEDULE.update(fresh)
     absent_teachers, day, all_resolutions = ["TCH_101", "TCH_102", "TCH_103"], "Monday", []
     for t_id in absent_teachers:
         res = solver_engine.resolve_teacher_absence(t_id, day, CURRENT_SCHEDULE.get("schedule", []))

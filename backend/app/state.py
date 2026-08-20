@@ -8,11 +8,18 @@ from app.solver import TimetableSolver
 from app.parser import DocumentParser
 from app.mock_data import TEACHERS, ROOMS, COHORTS, SUBJECTS, STUDENTS
 
+import json
+import os
+
 solver_engine = TimetableSolver(TEACHERS, ROOMS, COHORTS, SUBJECTS)
 doc_parser = DocumentParser()
 
 # In-memory reactive state
-CURRENT_SCHEDULE: Dict[str, Any] = {}
+try:
+    with open(os.path.join(os.path.dirname(__file__), "initial_schedule.json"), "r") as f:
+        CURRENT_SCHEDULE: Dict[str, Any] = json.load(f)
+except Exception:
+    CURRENT_SCHEDULE: Dict[str, Any] = {}
 ATTENDANCE_LOGS: List[Dict[str, Any]] = [deepcopy(s) for s in STUDENTS]
 UNREVIEWED_DOCUMENTS: List[Dict[str, Any]] = []
 
