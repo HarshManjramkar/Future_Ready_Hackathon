@@ -15,11 +15,13 @@ solver_engine = TimetableSolver(TEACHERS, ROOMS, COHORTS, SUBJECTS)
 doc_parser = DocumentParser()
 
 # In-memory reactive state
+CURRENT_SCHEDULE: Dict[str, Any] = {}
+
 try:
     with open(os.path.join(os.path.dirname(__file__), "initial_schedule.json"), "r") as f:
-        CURRENT_SCHEDULE: Dict[str, Any] = json.load(f)
+        CURRENT_SCHEDULE = json.load(f)
 except Exception:
-    CURRENT_SCHEDULE: Dict[str, Any] = {}
+    pass
 ATTENDANCE_LOGS: List[Dict[str, Any]] = [deepcopy(s) for s in STUDENTS]
 UNREVIEWED_DOCUMENTS: List[Dict[str, Any]] = []
 
