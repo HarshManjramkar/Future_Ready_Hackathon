@@ -3,9 +3,10 @@ import { Play, Sparkles, Zap, Printer, Loader2 } from 'lucide-react';
 import DisruptionModal from './DisruptionModal';
 import TimetableGrid from './TimetableGrid';
 import PrintStudio from './PrintStudio';
+import fallbackData from '../data/fallbackSchedule.json';
 
 export default function ReactiveTimetable() {
-  const [schedule, setSchedule] = useState([]);
+  const [schedule, setSchedule] = useState(fallbackData.schedule || []);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTeacher, setSelectedTeacher] = useState('TCH_101');
   const [solvingDisruption, setSolvingDisruption] = useState(false);
@@ -20,10 +21,12 @@ export default function ReactiveTimetable() {
     setIsLoading(true);
     try {
       const res = await fetch(`/api/timetable/generate?t=${Date.now()}`);
+      if (!res.ok) throw new Error('API down or timeout');
       const data = await res.json();
-      setSchedule(data.schedule || []);
+      setSchedule(data.schedule || fallbackData.schedule || []);
     } catch (err) {
-      console.error(err);
+      console.warn("Backend unavailable, using static fallback timetable:", err);
+      setSchedule(fallbackData.schedule || []);
     } finally {
       setIsLoading(false);
     }
